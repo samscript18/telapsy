@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700&family=Outfit:wght@200;300;400;500;600;700&display=swap');
+@import "tailwindcss";
 
 @layer theme {
   :root {
@@ -227,4 +227,3 @@ button:disabled {
     animation: none;
   }
 }
-

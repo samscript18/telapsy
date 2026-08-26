@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, PackageCheck, RotateCcw, ShieldCheck } from "lucide-react";
 import { catalog } from "@/lib/catalog";
 import { ProductCard } from "@/components/product-card";
