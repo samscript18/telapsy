@@ -3,6 +3,7 @@ node_modules/
 .env
 .env.local
 .testmuai/evidence/
+.testmuai/tests/
 .context/
 verification/runs/*.ndjson
 verification/evidence/*
