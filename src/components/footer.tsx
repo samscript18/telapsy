@@ -1,9 +1,22 @@
 import Link from "next/link";
 
 export function Footer() {
-  return <footer className="mt-24 bg-[var(--ink)] py-14 text-white"><div className="shell grid gap-10 md:grid-cols-[1.5fr_1fr_1fr]">
-    <div><div className="text-3xl font-black tracking-[-.08em]">TELAPSY<span className="text-[var(--orange)]">.</span></div><p className="mt-4 max-w-sm text-sm leading-6 text-white/60">Useful, well-made things for the way you live now. Fictional products, genuinely delightful shopping.</p></div>
-    <div><p className="eyebrow !text-white/40">Explore</p><div className="mt-4 grid gap-3 text-sm"><Link href="/products">Shop all</Link><Link href="/cart">Your bag</Link><Link href="/orders">My orders</Link></div></div>
-    <div><p className="eyebrow !text-white/40">Account</p><div className="mt-4 grid gap-3 text-sm"><Link href="/signup">Create account</Link><Link href="/signin">Sign in</Link><Link href="/account">Telapsy Balance</Link></div></div>
-  </div></footer>;
+  return (
+    <footer className="border-t border-[var(--line)] px-6 py-10">
+      <div className="mx-auto flex max-w-[1100px] flex-col gap-4 text-xs font-light text-[var(--faint)] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="font-light tracking-[-0.03em] text-[var(--ink)] text-sm">TELAPSY</span>
+          <span>·</span>
+          <span>Luxury Essentials & Modern Architecture</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-4 text-xs">
+          <Link href="/products" className="hover:text-[var(--ink)] transition-colors">Shop All</Link>
+          <Link href="/cart" className="hover:text-[var(--ink)] transition-colors">Bag</Link>
+          <Link href="/orders" className="hover:text-[var(--ink)] transition-colors">My Orders</Link>
+          <Link href="/account" className="hover:text-[var(--ink)] transition-colors">Member Credits</Link>
+          <span className="font-mono text-[10px] text-[var(--accent)]">Season 2026 · Curated Archive</span>
+        </div>
+      </div>
+    </footer>
+  );
 }

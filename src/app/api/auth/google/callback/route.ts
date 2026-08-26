@@ -1,0 +1,12 @@
+import { NextRequest, NextResponse } from "next/server";
+import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
+import { connectDb } from "@/lib/db";
+import { GOOGLE_NONCE_COOKIE, GOOGLE_STATE_COOKIE, GOOGLE_VERIFIER_COOKIE, googleConfigured, googleRedirectUri, verifyGoogleIdToken } from "@/lib/google-auth";
+import { User } from "@/models/User";
+
+function signinError(code:string){return NextResponse.redirect(new URL(`/signin?error=${code}`,process.env.NEXT_PUBLIC_APP_URL??"http://localhost:3000"));}
+export async function GET(request:NextRequest){
+  if(!googleConfigured())return signinError("google_not_configured");const code=request.nextUrl.searchParams.get("code");const state=request.nextUrl.searchParams.get("state");const expectedState=request.cookies.get(GOOGLE_STATE_COOKIE)?.value;const nonce=request.cookies.get(GOOGLE_NONCE_COOKIE)?.value;const verifier=request.cookies.get(GOOGLE_VERIFIER_COOKIE)?.value;
+  if(!code||!state||!expectedState||state!==expectedState||!nonce||!verifier)return signinError("google_state");
+  try{const tokenResponse=await fetch("https://oauth2.googleapis.com/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({code,client_id:process.env.GOOGLE_CLIENT_ID!,client_secret:process.env.GOOGLE_CLIENT_SECRET!,redirect_uri:googleRedirectUri(),grant_type:"authorization_code",code_verifier:verifier}),cache:"no-store"});if(!tokenResponse.ok)throw new Error("Google token exchange failed.");const tokens=await tokenResponse.json() as {id_token?:string};if(!tokens.id_token)throw new Error("Google ID token missing.");const profile=await verifyGoogleIdToken(tokens.id_token,nonce);await connectDb();let user=await User.findOne({googleSub:profile.sub});if(!user){const emailOwner=await User.findOne({email:profile.email});if(emailOwner&&!emailOwner.googleSub)return signinError("google_link_required");user=await User.create({name:profile.name,email:profile.email,googleSub:profile.sub,authProvider:"google",balanceCents:100000});}const response=NextResponse.redirect(new URL("/account",process.env.NEXT_PUBLIC_APP_URL??"http://localhost:3000"));response.cookies.set(SESSION_COOKIE,await createSessionToken(String(user._id)),sessionCookieOptions);response.cookies.delete(GOOGLE_STATE_COOKIE);response.cookies.delete(GOOGLE_NONCE_COOKIE);response.cookies.delete(GOOGLE_VERIFIER_COOKIE);return response;}catch{return signinError("google_failed");}
+}

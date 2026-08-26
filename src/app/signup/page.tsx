@@ -1,2 +1,26 @@
 import { AuthForm } from "@/components/auth-form";
-export default function SignupPage(){return <div className="shell grid min-h-[720px] place-items-center py-16"><section className="card w-full max-w-lg p-7 sm:p-10"><p className="eyebrow">Join Telapsy</p><h1 className="display mt-3 text-5xl">A better way to browse.</h1><p className="mt-4 text-[var(--muted)]">Create an account and receive a $1,000.00 fictional Telapsy Balance for the demo store.</p><AuthForm mode="signup"/></section></div>}
+import { GoogleAuthButton } from "@/components/google-auth-button";
+export default function SignupPage() {
+  return (
+    <div className="shell grid min-h-[680px] place-items-center py-12">
+      <section className="rounded-xl border border-[var(--line)] bg-[var(--surface)] w-full max-w-md p-8 sm:p-10 shadow-2xl">
+        <p className="eyebrow">Join Telapsy</p>
+        <h1 className="mt-2 text-3xl font-extralight tracking-[-0.04em] text-[var(--ink)]">Create an Account</h1>
+        <p className="mt-3 text-xs leading-relaxed font-light text-[var(--muted)]">
+          Every new registration receives an instant <span className="font-mono text-[var(--accent)]">$1,000.00</span> in Telapsy Member Credits applied to your account.
+        </p>
+
+        <div className="mt-6">
+          <GoogleAuthButton />
+          <div className="my-5 flex items-center gap-3 text-[10px] font-mono tracking-widest text-[var(--faint)] uppercase">
+            <span className="h-px flex-1 bg-[var(--line)]" />
+            or email
+            <span className="h-px flex-1 bg-[var(--line)]" />
+          </div>
+        </div>
+
+        <AuthForm mode="signup" />
+      </section>
+    </div>
+  );
+}

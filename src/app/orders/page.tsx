@@ -5,4 +5,72 @@ import { ArrowRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/pricing";
 import type { OrderViewData } from "@/components/order-view";
-export default function OrdersPage(){const {data,isLoading}=useQuery<{orders:OrderViewData[]}>({queryKey:["orders"],queryFn:async()=>{const r=await fetch("/api/orders");if(!r.ok)throw new Error();return r.json()},retry:false});if(isLoading)return <div className="shell py-24">Loading orders…</div>;if(!data)return <div className="shell py-24 text-center"><h1 className="display text-5xl">Sign in to see your orders.</h1><Link href="/signin" className="btn btn-primary mt-7">Sign in</Link></div>;return <div className="shell py-16"><p className="eyebrow">Your account</p><h1 className="display mt-3 text-6xl">My Orders</h1>{!data.orders.length?<div className="card mt-10 py-20 text-center"><PackageOpen className="mx-auto"/><h2 className="display mt-5 text-4xl">No orders yet.</h2><Link href="/products" className="btn btn-primary mt-7">Start shopping</Link></div>:<div className="mt-10 grid gap-4">{data.orders.map((order)=><Link key={order.orderNumber} href={`/orders/${order.orderNumber}`} className="card grid items-center gap-4 p-6 sm:grid-cols-[1fr_1fr_1fr_auto]"><div><p className="eyebrow">Order</p><strong>#{order.orderNumber}</strong></div><div><p className="eyebrow">Placed</p><span>{new Date(order.createdAt).toLocaleDateString()}</span></div><div><p className="eyebrow">Total · {order.orderStatus}</p><strong>{formatMoney(order.totalCents)}</strong></div><ArrowRight/></Link>)}</div>}</div>}
+export default function OrdersPage() {
+  const { data, isLoading } = useQuery<{ orders: OrderViewData[] }>({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const r = await fetch("/api/orders");
+      if (!r.ok) throw new Error();
+      return r.json();
+    },
+    retry: false,
+  });
+
+  if (isLoading) {
+    return <div className="shell py-24 text-center text-sm font-light text-[var(--muted)]">Loading orders…</div>;
+  }
+
+  if (!data) {
+    return (
+      <div className="shell py-24 text-center">
+        <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)]">Sign in to view orders.</h1>
+        <Link href="/signin" className="btn btn-primary mt-7 rounded-full px-7 py-3 text-sm">
+          Sign in
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="shell py-12">
+      <div className="border-b border-[var(--line)] pb-6">
+        <p className="eyebrow">Your Account</p>
+        <h1 className="mt-2 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">My Orders</h1>
+      </div>
+
+      {!data.orders.length ? (
+        <div className="mt-12 rounded-xl border border-[var(--line)] bg-[var(--surface)] py-20 text-center">
+          <PackageOpen className="mx-auto text-[var(--faint)]" size={42} />
+          <h2 className="mt-4 text-2xl font-extralight text-[var(--ink)]">No orders placed yet.</h2>
+          <Link href="/products" className="btn btn-primary mt-6 rounded-full px-7 py-3 text-sm">
+            Start shopping
+          </Link>
+        </div>
+      ) : (
+        <div className="mt-8 grid gap-4">
+          {data.orders.map((order) => (
+            <Link
+              key={order.orderNumber}
+              href={`/orders/${order.orderNumber}`}
+              className="group rounded-xl border border-[var(--line)] bg-[var(--surface)] p-6 transition-all hover:border-[var(--line-strong)] grid items-center gap-4 sm:grid-cols-[1fr_1fr_1fr_auto]"
+            >
+              <div>
+                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--faint)]">ORDER NUMBER</span>
+                <strong className="block font-mono text-sm text-[var(--accent)] font-normal">#{order.orderNumber}</strong>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--faint)]">DATE PLACED</span>
+                <span className="block font-mono text-xs text-[var(--muted)]">{new Date(order.createdAt).toLocaleDateString()}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono tracking-[0.2em] uppercase text-[var(--faint)]">TOTAL · {order.orderStatus}</span>
+                <strong className="block font-mono text-sm text-[var(--ink)] font-normal">{formatMoney(order.totalCents)}</strong>
+              </div>
+              <ArrowRight size={16} className="text-[var(--accent)] transition-transform group-hover:translate-x-1" />
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
