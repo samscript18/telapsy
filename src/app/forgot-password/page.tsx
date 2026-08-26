@@ -9,16 +9,23 @@ export default function ForgotPasswordPage() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
+    setMessage("");
+    setPreview("");
     const email = new FormData(event.currentTarget).get("email");
-    const response = await fetch("/api/auth/forgot-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await response.json();
-    setMessage(data.message ?? data.error);
-    setPreview(data.previewUrl ?? "");
-    setLoading(false);
+    try {
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      setMessage(data.message ?? data.error);
+      setPreview(data.previewUrl ?? "");
+    } catch {
+      setMessage("Password recovery is temporarily unavailable. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
