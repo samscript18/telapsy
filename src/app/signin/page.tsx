@@ -1,0 +1,2 @@
+import { AuthForm } from "@/components/auth-form";
+export default function SigninPage(){return <div className="shell grid min-h-[650px] place-items-center py-16"><section className="card w-full max-w-lg p-7 sm:p-10"><p className="eyebrow">Welcome back</p><h1 className="display mt-3 text-5xl">Sign in to Telapsy.</h1><p className="mt-4 text-[var(--muted)]">Your balance, orders, and good choices are waiting.</p><AuthForm mode="signin"/></section></div>}

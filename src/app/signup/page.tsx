@@ -1,0 +1,2 @@
+import { AuthForm } from "@/components/auth-form";
+export default function SignupPage(){return <div className="shell grid min-h-[720px] place-items-center py-16"><section className="card w-full max-w-lg p-7 sm:p-10"><p className="eyebrow">Join Telapsy</p><h1 className="display mt-3 text-5xl">A better way to browse.</h1><p className="mt-4 text-[var(--muted)]">Create an account and receive a $1,000.00 fictional Telapsy Balance for the demo store.</p><AuthForm mode="signup"/></section></div>}
