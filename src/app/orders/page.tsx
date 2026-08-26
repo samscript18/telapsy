@@ -1,0 +1,8 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { ArrowRight, PackageOpen } from "lucide-react";
+import Link from "next/link";
+import { formatMoney } from "@/lib/pricing";
+import type { OrderViewData } from "@/components/order-view";
+export default function OrdersPage(){const {data,isLoading}=useQuery<{orders:OrderViewData[]}>({queryKey:["orders"],queryFn:async()=>{const r=await fetch("/api/orders");if(!r.ok)throw new Error();return r.json()},retry:false});if(isLoading)return <div className="shell py-24">Loading orders…</div>;if(!data)return <div className="shell py-24 text-center"><h1 className="display text-5xl">Sign in to see your orders.</h1><Link href="/signin" className="btn btn-primary mt-7">Sign in</Link></div>;return <div className="shell py-16"><p className="eyebrow">Your account</p><h1 className="display mt-3 text-6xl">My Orders</h1>{!data.orders.length?<div className="card mt-10 py-20 text-center"><PackageOpen className="mx-auto"/><h2 className="display mt-5 text-4xl">No orders yet.</h2><Link href="/products" className="btn btn-primary mt-7">Start shopping</Link></div>:<div className="mt-10 grid gap-4">{data.orders.map((order)=><Link key={order.orderNumber} href={`/orders/${order.orderNumber}`} className="card grid items-center gap-4 p-6 sm:grid-cols-[1fr_1fr_1fr_auto]"><div><p className="eyebrow">Order</p><strong>#{order.orderNumber}</strong></div><div><p className="eyebrow">Placed</p><span>{new Date(order.createdAt).toLocaleDateString()}</span></div><div><p className="eyebrow">Total · {order.orderStatus}</p><strong>{formatMoney(order.totalCents)}</strong></div><ArrowRight/></Link>)}</div>}</div>}
