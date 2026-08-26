@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env
+.env.local
+.testmuai/evidence/
+.context/
+verification/runs/*.ndjson
+verification/evidence/*
+!.gitkeep
+npm-debug.log*
+*.tsbuildinfo
