@@ -3,7 +3,11 @@ import { cookies } from "next/headers";
 
 export const SESSION_COOKIE = "telapsy_session";
 export const RECENT_ORDER_COOKIE = "telapsy_recent_order";
-const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET ?? "development-only-secret-change-before-production-1234");
+const secret = () => {
+  const value = process.env.SESSION_SECRET;
+  if (!value || value.length < 32) throw new Error("SESSION_SECRET must be configured with at least 32 characters.");
+  return new TextEncoder().encode(value);
+};
 
 export async function createSessionToken(userId: string) {
   return new SignJWT({ userId }).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("7d").sign(secret());
