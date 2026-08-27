@@ -15,7 +15,13 @@ export function MotionShell({ children }: { children: React.ReactNode }) {
       const elements = document.querySelectorAll<HTMLElement>("[data-reveal]");
       if (reducedMotion.matches) {
         elements.forEach((element) => element.classList.add("is-visible"));
-        return () => undefined;
+        const mutationObserver = new MutationObserver((records) => records.forEach((record) => record.addedNodes.forEach((node) => {
+          if (!(node instanceof HTMLElement)) return;
+          if (node.matches("[data-reveal]")) node.classList.add("is-visible");
+          node.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => element.classList.add("is-visible"));
+        })));
+        mutationObserver.observe(document.body, { childList: true, subtree: true });
+        return () => mutationObserver.disconnect();
       }
 
       const observer = new IntersectionObserver(
@@ -29,8 +35,17 @@ export function MotionShell({ children }: { children: React.ReactNode }) {
         },
         { rootMargin: "0px 0px -8%", threshold: 0.12 },
       );
-      elements.forEach((element) => observer.observe(element));
-      return () => observer.disconnect();
+      const observe = (element: HTMLElement) => {
+        if (!element.classList.contains("is-visible")) observer.observe(element);
+      };
+      elements.forEach(observe);
+      const mutationObserver = new MutationObserver((records) => records.forEach((record) => record.addedNodes.forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        if (node.matches("[data-reveal]")) observe(node);
+        node.querySelectorAll<HTMLElement>("[data-reveal]").forEach(observe);
+      })));
+      mutationObserver.observe(document.body, { childList: true, subtree: true });
+      return () => { observer.disconnect(); mutationObserver.disconnect(); };
     };
 
     const stopReveal = reveal();

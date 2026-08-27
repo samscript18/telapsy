@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { CalendarDays, Check, KeyRound, Mail, ShieldCheck, UserRound, WalletCards } from "lucide-react";
+import { AtSign, CalendarDays, Check, CheckCircle2, KeyRound, Mail, PencilLine, ShieldCheck, UserRound, WalletCards } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { AccountShell } from "@/components/account-shell";
 import { formatMoney } from "@/lib/pricing";
@@ -10,16 +11,52 @@ import type { SessionUser } from "@/types";
 export default function ProfilePage() {
   const client = useQueryClient();
   const { data } = useQuery<{ user: SessionUser }>({ queryKey: ["me"], queryFn: () => fetch("/api/auth/me").then((response) => response.json()) });
-  const [status, setStatus] = useState(""); const [saving, setSaving] = useState(false);
-  async function save(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); setSaving(true); setStatus(""); const name=String(new FormData(event.currentTarget).get("name")??""); const response=await fetch("/api/auth/me",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})}); const result=await response.json(); if(response.ok){client.setQueryData(["me"],result);setStatus("Profile updated.");}else setStatus(result.error??"Could not update profile."); setSaving(false); }
+  const [status, setStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+  async function save(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setSaving(true); setStatus("");
+    const name = String(new FormData(event.currentTarget).get("name") ?? "");
+    const response = await fetch("/api/auth/me", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name }) });
+    const result = await response.json();
+    if (response.ok) { client.setQueryData(["me"], result); setStatus("Your profile details are now up to date."); }
+    else setStatus(result.error ?? "Could not update profile.");
+    setSaving(false);
+  }
   const user = data?.user;
-  return <AccountShell title="Profile" eyebrow="Identity">{user ? <div className="mx-auto grid max-w-6xl gap-5 xl:grid-cols-[.82fr_1.18fr]">
-    <div className="grid gap-5">
-      <section data-reveal className="relative overflow-hidden rounded-[1.8rem] border border-[var(--accent)]/20 bg-[radial-gradient(circle_at_top_right,rgba(232,185,106,.2),transparent_34%),rgba(255,255,255,.025)] p-6 sm:p-8"><div className="absolute right-6 top-6 font-mono text-[9px] uppercase tracking-[.15em] text-emerald-300"><span className="mr-2 inline-block size-1.5 rounded-full bg-emerald-300 shadow-[0_0_8px_#6ee7b7]"/>Active</div><span className="grid size-24 place-items-center rounded-[1.7rem] border border-[var(--accent)]/25 bg-[var(--accent)]/10 text-4xl font-extralight text-[var(--accent-bright)] shadow-[0_20px_60px_-30px_rgba(232,185,106,.8)]">{user.name.slice(0,1).toUpperCase()}</span><h2 className="mt-7 text-3xl font-light tracking-[-.045em]">{user.name}</h2><p className="mt-2 flex items-center gap-2 text-xs text-[var(--muted)]"><Mail size={13}/>{user.email}</p><div className="mt-7 flex flex-wrap gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 font-mono text-[8px] uppercase tracking-[.13em] text-emerald-300"><ShieldCheck size={11}/>Verified account</span><span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[8px] uppercase tracking-[.13em] text-[var(--muted)]"><KeyRound size={11}/>{user.authProvider === "google" ? "Google login" : "Password login"}</span></div></section>
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1"><ProfileFact icon={<WalletCards size={17}/>} label="Available balance" value={formatMoney(user.balanceCents)}/><ProfileFact icon={<CalendarDays size={17}/>} label="Joined Telapsy" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined,{month:"long",year:"numeric"}) : "Active account"}/></section>
+  const provider = user?.authProvider === "google" ? "Google" : "Email and password";
+  const joined = user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { dateStyle: "medium" }) : "Active account";
+
+  return <AccountShell title="Profile" eyebrow="Identity">{user && <div className="account-page mx-auto max-w-6xl">
+    <header className="account-page-header" data-reveal><span>Your Telapsy identity</span><h2>A profile built around your shopping experience.</h2><p>Keep your account recognizable and the details attached to every order accurate.</p></header>
+
+    <section className="profile-identity-hero" data-reveal aria-labelledby="profile-name">
+      <div className="profile-avatar">{user.name.slice(0,1).toUpperCase()}</div>
+      <div className="profile-identity-copy"><span><UserRound size={13}/>Account profile</span><h2 id="profile-name">{user.name}</h2><p>{user.email}</p><div><span data-tone="positive"><CheckCircle2 size={13}/>Active</span><span><ShieldCheck size={13}/>Verified account</span></div></div>
+      <div className="profile-hero-actions"><Link href="/settings"><PencilLine size={15}/>Edit profile</Link><Link href="/settings#security"><ShieldCheck size={15}/>Security</Link></div>
+    </section>
+
+    <div className="profile-content-grid">
+      <section className="account-panel" aria-labelledby="profile-details-title">
+        <PanelHeader icon={<UserRound size={17}/>} kicker="Account record" title="Your profile details" description="Identity and account information securely connected to Telapsy." id="profile-details-title" />
+        <dl className="profile-detail-grid">
+          <Detail icon={<Mail size={16}/>} label="Email address" value={user.email}/>
+          <Detail icon={<AtSign size={16}/>} label="Display name" value={user.name}/>
+          <Detail icon={<ShieldCheck size={16}/>} label="Account status" value="Active and verified"/>
+          <Detail icon={<KeyRound size={16}/>} label="Login method" value={provider}/>
+          <Detail icon={<CalendarDays size={16}/>} label="Member since" value={joined}/>
+          <Detail icon={<WalletCards size={16}/>} label="Available balance" value={formatMoney(user.balanceCents)}/>
+        </dl>
+      </section>
+
+      <form onSubmit={save} className="account-panel" aria-labelledby="edit-profile-title">
+        <PanelHeader icon={<PencilLine size={17}/>} kicker="Profile details" title="Present a clear identity" description="This name appears throughout your private account and order history." id="edit-profile-title" />
+        <fieldset className="account-fieldset"><legend>Personal identity</legend><p>Choose the full name you want Telapsy to use.</p><label><span>Full name</span><input key={user.name} name="name" defaultValue={user.name} required minLength={2} autoComplete="name"/></label><label><span>Email address</span><input value={user.email} disabled/><small>Your login email is locked for account security.</small></label></fieldset>
+        {status && <p role="status" className="account-form-status"><Check size={14}/>{status}</p>}
+        <footer className="account-form-footer"><span>Changes apply across your Telapsy account.</span><button disabled={saving}>{saving ? "Saving profile…" : "Save profile"}</button></footer>
+      </form>
     </div>
-    <form onSubmit={save} data-reveal className="rounded-[1.8rem] border border-white/10 bg-white/[.025] p-6 sm:p-9"><p className="eyebrow">Personal information</p><h2 className="mt-2 text-3xl font-light tracking-[-.04em] sm:text-4xl">A profile that feels like yours.</h2><p className="mt-3 max-w-xl text-sm leading-7 text-[var(--muted)]">Keep the name attached to your orders and account experience up to date.</p><div className="mt-9 grid gap-5"><label className="grid gap-2 text-xs text-[var(--muted)]"><span>Full name</span><span className="relative"><UserRound className="absolute left-4 top-3.5 text-[var(--faint)]" size={17}/><input key={user.name} name="name" className="field !pl-11" defaultValue={user.name} required minLength={2}/></span></label><label className="grid gap-2 text-xs text-[var(--muted)]"><span>Email address</span><span className="relative"><Mail className="absolute left-4 top-3.5 text-[var(--faint)]" size={17}/><input className="field !pl-11 opacity-60" value={user.email} readOnly/></span><small className="text-[10px] leading-5 text-[var(--faint)]">Your login email is locked for account security.</small></label></div>{status&&<p role="status" className="mt-5 flex items-center gap-2 text-xs text-[var(--accent)]"><Check size={14}/>{status}</p>}<div className="mt-8 flex flex-wrap items-center gap-4 border-t border-white/10 pt-6"><button disabled={saving} className="btn btn-primary">{saving?"Saving…":"Save profile"}</button><span className="text-[10px] text-[var(--faint)]">Changes apply across your account.</span></div></form>
-  </div> : null}</AccountShell>;
+  </div>}</AccountShell>;
 }
 
-function ProfileFact({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <article className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[.025] p-5"><span className="grid size-11 place-items-center rounded-xl bg-[var(--accent)]/10 text-[var(--accent)]">{icon}</span><span><small className="block font-mono text-[8px] uppercase tracking-[.14em] text-[var(--faint)]">{label}</small><strong className="mt-1 block text-sm font-normal">{value}</strong></span></article>; }
+function PanelHeader({ icon, kicker, title, description, id }: { icon: React.ReactNode; kicker: string; title: string; description: string; id: string }) { return <header className="account-panel-header"><span>{icon}</span><div><small>{kicker}</small><h3 id={id}>{title}</h3><p>{description}</p></div></header>; }
+function Detail({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) { return <div><span>{icon}</span><div><dt>{label}</dt><dd>{value}</dd></div></div>; }
