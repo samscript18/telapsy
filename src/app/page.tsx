@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, AudioLines, BellRing, CircleCheck, PackageCheck, RotateCcw, Search, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
+import { ArrowRight, AudioLines, BellRing, ChevronDown, CircleCheck, PackageCheck, RotateCcw, Search, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { catalog } from "@/lib/catalog";
 import { getSessionUserId } from "@/lib/auth";
@@ -13,6 +13,15 @@ const categories = [
 ];
 
 const trustItems = ["Complimentary express delivery", "30-day decision window", "40 considered objects", "Secure simulated checkout", "Twenty percent off with KANE", "Member balance included"];
+
+const faqs = [
+	{ question: "What is Telapsy?", answer: "Telapsy is an AI-verified e-commerce experience with forty considered products across Fashion, Electronics, Home, and Accessories." },
+	{ question: "How does the $1,000 Telapsy Balance work?", answer: "Every new account receives $1,000.00 in fictional Telapsy credits. You can use them during checkout, and your balance updates after each successful order." },
+	{ question: "Can I use a promo code?", answer: "Yes. Enter KANE or KANE2026 in your cart to receive 20% off the merchandise subtotal. The discount carries through checkout and appears in your order record." },
+	{ question: "Are payments and card details real?", answer: "No. Telapsy uses a clearly simulated payment experience for demonstration purposes. It never connects to a payment provider or stores real card information." },
+	{ question: "Where can I follow my order?", answer: "After checkout, your confirmation is saved to My Orders. You will also receive private updates in your Telapsy notification center." },
+	{ question: "What does AI-verified mean?", answer: "Telapsy’s critical shopping journeys are checked in a real browser with KaneAI, helping the development agent find, diagnose, and repair genuine regressions before shipping." },
+];
 
 export default async function HomePage() {
 	const authenticated = Boolean(await getSessionUserId());
@@ -198,6 +207,26 @@ export default async function HomePage() {
 					<div data-reveal><p className="eyebrow">Confidence built into every screen</p><h2 className="mt-4 max-w-3xl text-4xl font-extralight tracking-[-.05em] md:text-5xl">The details agree—from cart to confirmation.</h2><p className="mt-5 max-w-2xl text-sm font-light leading-7 text-[var(--muted)]">Prices are confirmed on the server, payment is simulated safely, and every order preserves exactly what you purchased.</p></div>
 					<div data-reveal className="grid min-w-[280px] gap-3 sm:grid-cols-3 lg:grid-cols-1">
 						{["Authoritative totals", "Private account activity", "Immutable order history"].map((item) => <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-xs text-[var(--muted)]"><CircleCheck size={17} className="text-[var(--accent)]"/>{item}</div>)}
+					</div>
+				</div>
+			</section>
+
+			<section className="shell py-24 lg:py-32" aria-labelledby="faq-title">
+				<div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-20">
+					<div data-reveal className="lg:sticky lg:top-32 lg:self-start">
+						<p className="eyebrow">Questions, answered</p>
+						<h2 id="faq-title" className="mt-4 text-4xl font-extralight leading-[.96] tracking-[-.055em] md:text-6xl">Everything before you begin.</h2>
+						<p className="mt-5 max-w-md text-sm font-light leading-7 text-[var(--muted)]">The useful details about credits, checkout, orders, and how Telapsy earns its verified mark.</p>
+						<Link href={authenticated ? "/dashboard/products" : "/signup"} className="group mt-7 inline-flex items-center gap-2 text-xs text-[var(--accent)] transition hover:text-[var(--accent-bright)]">Try Telapsy <ArrowRight size={14} className="transition-transform group-hover:translate-x-1"/></Link>
+					</div>
+					<div data-reveal className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-white/[.02] px-5 sm:px-7">
+						{faqs.map((faq, index) => <details key={faq.question} className="group border-b border-white/10 py-1 last:border-b-0">
+							<summary className="flex min-h-20 cursor-pointer list-none items-center justify-between gap-5 py-5 text-left text-base font-light tracking-[-.02em] text-[var(--ink)] marker:content-none sm:text-lg">
+								<span className="flex items-center gap-4"><span className="font-mono text-[9px] tracking-[.14em] text-[var(--accent)]">{String(index + 1).padStart(2, "0")}</span>{faq.question}</span>
+								<span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[.035] text-[var(--faint)] transition duration-300 group-open:rotate-180 group-open:border-[var(--accent)]/30 group-open:text-[var(--accent)]"><ChevronDown size={15}/></span>
+							</summary>
+							<div className="faq-answer-grid"><p className="max-w-2xl pb-6 pl-9 pr-12 text-sm font-light leading-7 text-[var(--muted)]">{faq.answer}</p></div>
+						</details>)}
 					</div>
 				</div>
 			</section>
