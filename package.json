@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "seed": "tsx scripts/seed.ts",
+    "assets:products": "tsx scripts/fetch-product-images.ts",
     "verify:kane": "tsx scripts/verify-kane.ts"
   },
   "dependencies": {

@@ -5,5 +5,14 @@
   "project_id": "01M0ZBG3VRA74FVD9643N6Z5GJ",
   "folder_id": "01M0ZBGBENHM34PE45MYSD4AY6",
   "org_id": "3295824",
-  "session_name": "protected-routes"
+  "session_name": "protected-routes",
+  "executions": [
+    {
+      "execution_id": "3fc506a6-2cfc-4d93-bc20-3f60d862cbb4",
+      "run_kind": "replay",
+      "status": "passed",
+      "valid": true,
+      "at": "2026-08-27T14:59:36.987Z"
+    }
+  ]
 }

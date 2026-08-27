@@ -3,33 +3,38 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const objectives: Record<string, { objective: string; timeout?: number; maxSteps?: number }> = {
-	storefront: { objective: "Go to http://localhost:3000, verify the Telapsy storefront loads, the hero says 'Better things, chosen well.', and exactly four category shortcuts are visible." },
+	storefront: { objective: "Go to http://localhost:3000, verify the Telapsy storefront loads, the hero says 'Objects with gravity.', and exactly four category shortcuts are visible." },
 	search: {
-		objective: "Go to http://localhost:3000/products, search for 'Pulse Wireless Headphones', verify only matching results remain, open the product, and verify its name, Electronics category, price, stock status, and Add to bag control are visible.",
+		objective: "Go to http://localhost:3000/signup and create a Telapsy account with a unique email and a compliant password. Open Products from the sidebar, search for 'Pulse Wireless Headphones', verify only matching results remain, open the product, and verify its name, Electronics category, price, stock status, and Add to cart control are visible.",
 	},
 	filter: { objective: "Go to http://localhost:3000/products, filter by Electronics, verify Electronics products are shown and that a Fashion product named Velocity Sneakers is not shown in the filtered results." },
-	guestCart: {
-		objective: "Go to http://localhost:3000/products/velocity-sneakers, increase quantity to 2, add it to the bag, open the bag, and verify it contains Velocity Sneakers with quantity 2 and the line total equals twice the unit price.",
+	registeredCart: {
+		objective: "Go to http://localhost:3000/signup and create a Telapsy account with a unique email and a compliant password. Open Products, open Velocity Sneakers, increase quantity to 2, add it to the cart, open the cart, and verify it contains Velocity Sneakers with quantity 2 and the line total equals twice the unit price.",
 	},
 	promoKane: {
-		objective: "Go to http://localhost:3000/products/velocity-sneakers, add one item to the bag, open the bag, apply promo code KANE, verify a 20% discount is shown and the total is 80% of the subtotal, proceed to checkout, and verify the same discount and total persist.",
+		objective: "Go to http://localhost:3000/signup and create a Telapsy account with a unique email and a compliant password. Open Velocity Sneakers from Products, add one item to the cart, open the cart, apply promo code KANE, verify a 20% discount is shown and the total is 80% of the subtotal, proceed to checkout, and verify the same discount and total persist.",
 	},
-	promoKane2026: { objective: "Go to http://localhost:3000/products/velocity-sneakers, add one item to the bag, open the bag, apply promo code ' kane2026 ', verify a 20% discount is shown and the total is 80% of the subtotal." },
+	promoKane2026: { objective: "Go to http://localhost:3000/signup and create a Telapsy account with a unique email and a compliant password. Open Velocity Sneakers from Products, add one item to the cart, open the cart, apply promo code ' kane2026 ', verify a 20% discount is shown and the total is 80% of the subtotal." },
 	registration: {
-		objective: "Go to http://localhost:3000/signup, create a new account using a unique email and a password of at least 8 characters containing letters and numbers, then verify the account page shows the authenticated user's name and an Available Telapsy Balance of $1,000.00.",
+		objective: "Go to http://localhost:3000/signup, create a new account using a unique email and a password of at least 12 characters containing uppercase, lowercase, number, and special characters, then verify the dashboard shows the authenticated user's name and an Available balance of $1,000.00.",
 	},
-	checkoutGuest: {
-		objective: "Go to http://localhost:3000/products/velocity-sneakers, add one item to the bag, proceed through cart to checkout as a guest, enter valid contact and delivery details, choose Simulated Card, place the order, and verify the confirmation shows an order number, the correct product and quantity, matching subtotal and total, and Payment successful.",
+	checkoutCard: {
+		objective: "Go to http://localhost:3000/signup and create a Telapsy account with a unique email and a compliant password. Open Products, add one Velocity Sneakers to the cart, proceed to checkout, enter valid contact and delivery details, choose Instant Payment, place the order, and verify the confirmation shows an order number, the correct product and quantity, matching subtotal and total, and a successful payment.",
 		timeout: 360,
 		maxSteps: 40,
 	},
 	checkoutBalance: {
-		objective: "Go to http://localhost:3000/signup and create a new account with a unique email and a compliant password. Verify the starting Telapsy Balance is $1,000.00. Open Velocity Sneakers, add one to the bag, apply KANE, proceed to checkout, enter valid contact and delivery information, select Telapsy Balance, and place the order. Verify order confirmation shows Velocity Sneakers, a $68.00 subtotal, a $13.60 discount, a $54.40 total, and Payment successful. Then open the account and verify Available Telapsy Balance is exactly $945.60.",
+		objective: "Go to http://localhost:3000/signup and create a new account with a unique email and a compliant password. Verify the starting balance is $1,000.00. Open Velocity Sneakers from Products, add one to the cart, apply KANE, proceed to checkout, enter valid contact and delivery information, select Telapsy Credits, and place the order. Verify order confirmation shows Velocity Sneakers, a $68.00 subtotal, a $13.60 discount, a $54.40 total, and successful payment. Then open the dashboard and verify Available balance is exactly $945.60.",
 		timeout: 480,
 		maxSteps: 60,
 	},
 	orderHistory: {
-		objective: "Go to http://localhost:3000/signup and create a new account with a unique email and compliant password. Buy one Velocity Sneakers using Telapsy Balance with valid checkout details. From confirmation, open My Orders, verify the newest order is listed, open it, and verify the product is Velocity Sneakers, quantity is 1, total is $68.00, delivery information is present, payment method is Telapsy Balance, and order status is processing.",
+		objective: "Go to http://localhost:3000/signup and create a new account with a unique email and compliant password. Buy one Velocity Sneakers using Telapsy Credits with valid checkout details. From confirmation, open View order details, then open Orders and verify the newest order is listed. Open it and verify the product is Velocity Sneakers, quantity is 1, total is $68.00, delivery information is present, payment method is Telapsy Balance, and order status is processing.",
+		timeout: 480,
+		maxSteps: 60,
+	},
+	submissionDemo: {
+		objective: "Go to http://localhost:3000/signup and create a new Telapsy account with a unique email and a password of at least 12 characters containing uppercase, lowercase, a number, and a special character. Verify the dashboard shows a $1,000.00 available balance. Open Products, search for Velocity Sneakers, open it, add one to the cart, open the cart, apply promo code KANE, and verify the total is $54.40. Proceed to checkout, enter valid contact and delivery details, select Telapsy Credits, place the order, and verify the order confirmation shows Velocity Sneakers, a $13.60 discount, a $54.40 total, and successful payment. Open the order details and verify the delivery information and processing status are present.",
 		timeout: 480,
 		maxSteps: 60,
 	},
