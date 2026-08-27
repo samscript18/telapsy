@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LayoutDashboard, Menu, ShoppingBag, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/store/cart";
 import type { SessionUser } from "@/types";
 
@@ -23,7 +23,8 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const count = useCart((state) => state.items.reduce((sum, item) => sum + item.quantity, 0));
   const hydrated = useCart((state) => state.hydrated);
-  const { data } = useQuery<{ user: SessionUser | null }>({
+  const setCartOwner = useCart((state) => state.setCartOwner);
+  const { data, isFetched } = useQuery<{ user: SessionUser | null }>({
     queryKey: ["me"],
     queryFn: async () => {
       const response = await fetch("/api/auth/me");
@@ -31,6 +32,10 @@ export function Header() {
     },
     retry: false,
   });
+
+  useEffect(() => {
+    if (hydrated && isFetched) setCartOwner(data?.user?.id ?? null);
+  }, [data?.user?.id, hydrated, isFetched, setCartOwner]);
 
   return (
     <header className="site-header fixed inset-x-0 top-0 z-50 flex justify-center px-3 pt-3 md:px-4 md:pt-5">

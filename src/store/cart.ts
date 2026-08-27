@@ -9,7 +9,10 @@ interface CartStore {
   items: CartItem[];
   promoCode: string | null;
   hydrated: boolean;
+  ownerKey: string;
+  carts: Record<string, CartSnapshot>;
   setHydrated: (value: boolean) => void;
+  setCartOwner: (userId: string | null) => void;
   addItem: (product: ProductData, quantity?: number) => void;
   setQuantity: (slug: string, quantity: number) => void;
   removeItem: (slug: string) => void;
@@ -18,17 +21,66 @@ interface CartStore {
   removePromo: () => void;
 }
 
-export const useCart = create<CartStore>()(persist((set, get) => ({
-  items: [], promoCode: null, hydrated: false,
-  setHydrated: (hydrated) => set({ hydrated }),
-  addItem: (product, quantity = 1) => set({ items: (() => {
-    const current = get().items.find((item) => item.slug === product.slug);
-    if (!current) return [...get().items, { ...product, quantity: Math.min(product.stock, Math.max(1, quantity)) }];
-    return get().items.map((item) => item.slug === product.slug ? { ...item, quantity: Math.min(item.stock, item.quantity + quantity) } : item);
-  })() }),
-  setQuantity: (slug, quantity) => set({ items: get().items.map((item) => item.slug === slug ? { ...item, quantity: Math.max(1, Math.min(item.stock, quantity)) } : item) }),
-  removeItem: (slug) => set({ items: get().items.filter((item) => item.slug !== slug) }),
-  clearCart: () => set({ items: [], promoCode: null }),
-  applyPromo: (code) => { if (!isValidPromoCode(code)) return false; set({ promoCode: normalizePromoCode(code) }); return true; },
-  removePromo: () => set({ promoCode: null }),
-}), { name: "telapsy-cart", partialize: ({ items, promoCode }) => ({ items, promoCode }), onRehydrateStorage: () => (state) => state?.setHydrated(true) }));
+interface CartSnapshot {
+  items: CartItem[];
+  promoCode: string | null;
+}
+
+const GUEST_CART_KEY = "guest";
+
+export const useCart = create<CartStore>()(
+  persist(
+    (set, get) => {
+      function updateCart(items: CartItem[], promoCode = get().promoCode) {
+        set((state) => ({
+          items,
+          promoCode,
+          carts: {
+            ...state.carts,
+            [state.ownerKey]: { items, promoCode },
+          },
+        }));
+      }
+
+      return {
+        items: [],
+        promoCode: null,
+        hydrated: false,
+        ownerKey: GUEST_CART_KEY,
+        carts: {},
+        setHydrated: (hydrated) => set({ hydrated }),
+        setCartOwner: (userId) => {
+          const ownerKey = userId ?? GUEST_CART_KEY;
+          const cart = get().carts[ownerKey] ?? { items: [], promoCode: null };
+          set({ ownerKey, items: cart.items, promoCode: cart.promoCode });
+        },
+        addItem: (product, quantity = 1) => {
+          const current = get().items.find((item) => item.slug === product.slug);
+          const items = current
+            ? get().items.map((item) => item.slug === product.slug ? { ...item, quantity: Math.min(item.stock, item.quantity + quantity) } : item)
+            : [...get().items, { ...product, quantity: Math.min(product.stock, Math.max(1, quantity)) }];
+          updateCart(items);
+        },
+        setQuantity: (slug, quantity) => updateCart(get().items.map((item) => item.slug === slug ? { ...item, quantity: Math.max(1, Math.min(item.stock, quantity)) } : item)),
+        removeItem: (slug) => updateCart(get().items.filter((item) => item.slug !== slug)),
+        clearCart: () => updateCart([], null),
+        applyPromo: (code) => {
+          if (!isValidPromoCode(code)) return false;
+          updateCart(get().items, normalizePromoCode(code));
+          return true;
+        },
+        removePromo: () => updateCart(get().items, null),
+      };
+    },
+    {
+      name: "telapsy-cart",
+      version: 2,
+      partialize: ({ carts }) => ({ carts }),
+      migrate: (persistedState, version) => version < 2 ? { carts: {} } : persistedState,
+      onRehydrateStorage: () => (state) => {
+        state?.setCartOwner(null);
+        state?.setHydrated(true);
+      },
+    },
+  ),
+);
