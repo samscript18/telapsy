@@ -3,13 +3,15 @@
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { CreditCard, LockKeyhole, WalletCards } from "lucide-react";
+import { Check, CreditCard, LockKeyhole, MapPin, Plus, WalletCards } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { calculatePricing, formatMoney } from "@/lib/pricing";
 import { OrderSummary } from "@/components/order-summary";
 import { useCart } from "@/store/cart";
-import type { SessionUser } from "@/types";
+import type { DeliveryAddress, SessionUser } from "@/types";
+
+const emptyDelivery = { address: "", city: "", state: "", country: "Nigeria" };
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,7 +26,19 @@ export default function CheckoutPage() {
     },
     retry: false,
   });
+  const { data: deliveryData, isLoading: addressesLoading } = useQuery<{ addresses: DeliveryAddress[] }>({
+    queryKey: ["delivery-addresses"],
+    queryFn: async () => {
+      const response = await fetch("/api/delivery-addresses");
+      if (!response.ok) return { addresses: [] };
+      return response.json();
+    },
+    enabled: Boolean(data?.user),
+    retry: false,
+  });
   const [payment, setPayment] = useState<"balance" | "simulated-card">("simulated-card");
+  const [selectedAddress, setSelectedAddress] = useState("new");
+  const [delivery, setDelivery] = useState(emptyDelivery);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const idempotencyKey = useMemo(() => crypto.randomUUID(), []);
@@ -36,7 +50,7 @@ export default function CheckoutPage() {
     const f = new FormData(event.currentTarget);
     const body = {
       customer: { name: f.get("name"), email: f.get("email"), phone: f.get("phone") },
-      delivery: { address: f.get("address"), city: f.get("city"), state: f.get("state"), country: f.get("country") },
+      delivery,
       paymentMethod: payment,
       promoCode,
       items: items.map(({ slug, quantity }) => ({ slug, quantity })),
@@ -90,11 +104,63 @@ export default function CheckoutPage() {
           </FormSection>
 
           <FormSection title="Delivery Information">
+            {data?.user && (
+              <div className="mb-6">
+                <div className="mb-3 flex items-end justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--accent)]">Saved destinations</p>
+                    <p className="mt-1 text-xs leading-5 text-[var(--faint)]">Choose an address from a previous order or enter another one.</p>
+                  </div>
+                  {addressesLoading && <span className="text-[10px] text-[var(--faint)]">Loading…</span>}
+                </div>
+                <div className="grid gap-3 md:grid-cols-2">
+                  {deliveryData?.addresses.map((savedAddress, index) => (
+                    <DeliveryChoice
+                      key={savedAddress.id}
+                      active={selectedAddress === savedAddress.id}
+                      title={index === 0 ? "Recently used" : `Saved address ${index + 1}`}
+                      address={savedAddress}
+                      onClick={() => {
+                        setSelectedAddress(savedAddress.id);
+                        setDelivery({
+                          address: savedAddress.address,
+                          city: savedAddress.city,
+                          state: savedAddress.state,
+                          country: savedAddress.country,
+                        });
+                      }}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    aria-pressed={selectedAddress === "new"}
+                    onClick={() => {
+                      setSelectedAddress("new");
+                      setDelivery(emptyDelivery);
+                    }}
+                    className={`group relative flex min-h-32 items-center gap-4 rounded-2xl border p-4 pr-12 text-left transition-all ${
+                      selectedAddress === "new"
+                        ? "border-[var(--accent)] bg-[rgba(232,185,106,.08)]"
+                        : "border-[var(--line)] bg-black/15 hover:border-[var(--line-strong)]"
+                    }`}
+                  >
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[rgba(232,185,106,.09)] text-[var(--accent)]">
+                      <Plus size={17} />
+                    </span>
+                    <span>
+                      <strong className="block text-sm font-medium text-[var(--ink)]">Use another address</strong>
+                      <span className="mt-1 block text-xs leading-5 text-[var(--faint)]">Enter a new delivery destination below.</span>
+                    </span>
+                    <ChoiceIndicator active={selectedAddress === "new"} />
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field name="address" label="Street address" className="sm:col-span-2" />
-              <Field name="city" label="City" />
-              <Field name="state" label="State / region" />
-              <Field name="country" label="Country" className="sm:col-span-2" defaultValue="Nigeria" />
+              <Field name="address" label="Street address" className="sm:col-span-2" value={delivery.address} onChange={(event) => { setSelectedAddress("new"); setDelivery((current) => ({ ...current, address: event.target.value })); }} />
+              <Field name="city" label="City" value={delivery.city} onChange={(event) => { setSelectedAddress("new"); setDelivery((current) => ({ ...current, city: event.target.value })); }} />
+              <Field name="state" label="State / region" value={delivery.state} onChange={(event) => { setSelectedAddress("new"); setDelivery((current) => ({ ...current, state: event.target.value })); }} />
+              <Field name="country" label="Country" className="sm:col-span-2" value={delivery.country} onChange={(event) => { setSelectedAddress("new"); setDelivery((current) => ({ ...current, country: event.target.value })); }} />
             </div>
           </FormSection>
 
@@ -214,5 +280,40 @@ function PaymentChoice({
         }`}
       />
     </button>
+  );
+}
+
+function DeliveryChoice({ active, title, address, onClick }: { active: boolean; title: string; address: DeliveryAddress; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`group relative min-h-32 rounded-2xl border p-4 text-left transition-all ${
+        active
+          ? "border-[var(--accent)] bg-[rgba(232,185,106,.08)] shadow-[0_15px_40px_-28px_rgba(232,185,106,.7)]"
+          : "border-[var(--line)] bg-black/15 hover:border-[var(--line-strong)]"
+      }`}
+    >
+      <div className="flex items-start gap-3 pr-8">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-[rgba(232,185,106,.09)] text-[var(--accent)]">
+          <MapPin size={16} />
+        </span>
+        <span className="min-w-0">
+          <strong className="block text-[10px] font-medium uppercase tracking-[0.14em] text-[var(--accent)]">{title}</strong>
+          <span className="mt-2 block text-sm leading-5 text-[var(--ink)]">{address.address}</span>
+          <span className="mt-1 block text-xs text-[var(--faint)]">{address.city}, {address.state} · {address.country}</span>
+        </span>
+      </div>
+      <ChoiceIndicator active={active} />
+    </button>
+  );
+}
+
+function ChoiceIndicator({ active }: { active: boolean }) {
+  return (
+    <span className={`absolute right-4 top-4 grid size-5 place-items-center rounded-full border transition ${active ? "border-[var(--accent)] bg-[var(--accent)] text-black" : "border-[var(--line-strong)]"}`}>
+      {active && <Check size={12} strokeWidth={3} />}
+    </span>
   );
 }

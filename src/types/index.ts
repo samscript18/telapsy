@@ -35,6 +35,15 @@ export interface SessionUser {
   preferences?: { orderUpdates: boolean; productNews: boolean; compactDashboard: boolean };
 }
 
+export interface DeliveryAddress {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  lastUsedAt: string;
+}
+
 export interface NotificationData {
   id: string;
   type: "account" | "order" | "collection" | "security";
