@@ -2,8 +2,9 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-[var(--line)] px-6 py-10">
-      <div className="mx-auto flex max-w-[1100px] flex-col gap-4 text-xs font-light text-[var(--faint)] sm:flex-row sm:items-center sm:justify-between">
+    <footer className="relative overflow-hidden border-t border-[var(--line)] px-6 py-12">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--accent)]/50 to-transparent" />
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-5 text-xs font-light text-[var(--faint)] sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="font-light tracking-[-0.03em] text-[var(--ink)] text-sm">TELAPSY</span>
           <span>·</span>

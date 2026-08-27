@@ -20,14 +20,15 @@ export function ProductDetails({ product }: { product: ProductData }) {
   };
 
   return (
-    <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 items-center">
+    <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
       {/* Product Image Frame */}
-      <div className="relative aspect-square overflow-hidden rounded-xl border border-[var(--line)] bg-[var(--raised)]">
-        <Image src={product.image} alt={product.name} fill priority className="object-cover" sizes="50vw" />
+      <div data-reveal className="product-hero-frame relative aspect-square overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--raised)]">
+        <Image src={product.image} alt={product.name} fill priority className="object-cover transition-transform duration-1000 hover:scale-105" sizes="50vw" />
+        <span className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/35 via-transparent to-white/[0.06]" />
       </div>
 
       {/* Product Information */}
-      <div className="flex flex-col justify-center">
+      <div data-reveal style={{ "--reveal-delay": "120ms" } as React.CSSProperties} className="flex flex-col justify-center">
         <Link href={`/products?category=${product.category}`} className="eyebrow">
           {product.category}
         </Link>

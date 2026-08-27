@@ -35,7 +35,7 @@ export function ProductsClient() {
 
   return (
     <div className="shell py-12">
-      <div className="max-w-2xl">
+      <div data-reveal className="max-w-2xl">
         <p className="eyebrow">THE ARCHIVE</p>
         <h1 className="mt-3 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-6xl">
           Discover your next essential.
@@ -45,7 +45,7 @@ export function ProductsClient() {
         </p>
       </div>
 
-      <div className="mt-10 flex flex-col gap-4 border-y border-[var(--line)] py-6 md:flex-row md:items-center md:justify-between">
+      <div data-reveal style={{ "--reveal-delay": "100ms" } as React.CSSProperties} className="mt-10 flex flex-col gap-4 border-y border-[var(--line)] py-6 md:flex-row md:items-center md:justify-between">
         <div className="flex flex-wrap gap-2">
           {["All", ...CATEGORIES].map((item) => (
             <button
@@ -104,7 +104,7 @@ export function ProductsClient() {
           </button>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+        <div className="product-grid mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
           {data?.products.map((product) => (
             <ProductCard key={product.slug} product={product} />
           ))}
