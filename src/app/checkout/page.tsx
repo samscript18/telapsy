@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   if (!items.length) {
     return (
       <div className="shell py-24 text-center">
-        <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Your bag is empty.</h1>
+        <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Your cart is empty.</h1>
         <Link href="/products" className="btn btn-primary mt-7 rounded-full px-7 py-3">
           Browse products
         </Link>
@@ -105,7 +105,7 @@ export default function CheckoutPage() {
                   active={payment === "balance"}
                   onClick={() => setPayment("balance")}
                   icon={<WalletCards size={18} className="text-[var(--accent)]" />}
-                  title="Telapsy Member Credits"
+                  title="Telapsy Credits"
                   detail={`${formatMoney(data.user.balanceCents)} available`}
                 />
               )}
@@ -119,7 +119,7 @@ export default function CheckoutPage() {
             </div>
             <div className="mt-4 flex items-center gap-2.5 rounded-lg border border-[var(--line)] bg-[var(--canvas)] p-3.5 text-xs font-light text-[var(--muted)]">
               <LockKeyhole size={16} className="text-[var(--accent)] shrink-0" />
-              <p>Encrypted & Secure. Order transactions and member credits are protected by 256-bit SSL protocol.</p>
+              <p>Encrypted & Secure. Order transactions and credits are protected by 256-bit SSL protocol.</p>
             </div>
           </FormSection>
 
@@ -153,7 +153,7 @@ export default function CheckoutPage() {
             {loading ? "Processing order…" : `Place order · ${formatMoney(pricing.totalCents)}`}
           </button>
           <Link href="/cart" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
-            Back to bag
+            Back to cart
           </Link>
         </aside>
       </form>

@@ -5,6 +5,7 @@ import { ArrowRight, PackageOpen } from "lucide-react";
 import Link from "next/link";
 import { formatMoney } from "@/lib/pricing";
 import type { OrderViewData } from "@/components/order-view";
+import { AccountShell } from "@/components/account-shell";
 export default function OrdersPage() {
   const { data, isLoading } = useQuery<{ orders: OrderViewData[] }>({
     queryKey: ["orders"],
@@ -17,22 +18,22 @@ export default function OrdersPage() {
   });
 
   if (isLoading) {
-    return <div className="shell py-24 text-center text-sm font-light text-[var(--muted)]">Loading orders…</div>;
+    return <AccountShell title="Orders"><div className="py-24 text-center text-sm font-light text-[var(--muted)]">Loading orders…</div></AccountShell>;
   }
 
   if (!data) {
     return (
-      <div className="shell py-24 text-center">
+      <AccountShell title="Orders"><div className="py-24 text-center">
         <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)]">Sign in to view orders.</h1>
         <Link href="/signin" className="btn btn-primary mt-7 rounded-full px-7 py-3 text-sm">
           Sign in
         </Link>
-      </div>
+      </div></AccountShell>
     );
   }
 
   return (
-    <div className="shell py-12">
+    <AccountShell title="Orders"><div>
       <div className="border-b border-[var(--line)] pb-6">
         <p className="eyebrow">Your Account</p>
         <h1 className="mt-2 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">My Orders</h1>
@@ -43,7 +44,7 @@ export default function OrdersPage() {
           <PackageOpen className="mx-auto text-[var(--faint)]" size={42} />
           <h2 className="mt-4 text-2xl font-extralight text-[var(--ink)]">No orders placed yet.</h2>
           <Link href="/products" className="btn btn-primary mt-6 rounded-full px-7 py-3 text-sm">
-            Start shopping
+            Buy now
           </Link>
         </div>
       ) : (
@@ -71,6 +72,6 @@ export default function OrdersPage() {
           ))}
         </div>
       )}
-    </div>
+    </div></AccountShell>
   );
 }

@@ -7,25 +7,26 @@ import { useState } from "react";
 import { calculatePricing, formatMoney } from "@/lib/pricing";
 import { OrderSummary } from "@/components/order-summary";
 import { useCart } from "@/store/cart";
+import { AccountShell } from "@/components/account-shell";
 
-export default function CartPage() {
+function CartContent() {
   const { items, promoCode, hydrated, setQuantity, removeItem, clearCart, applyPromo, removePromo } = useCart();
   const [code, setCode] = useState("");
   const [message, setMessage] = useState("");
   const pricing = calculatePricing(items, promoCode);
 
   if (!hydrated) {
-    return <div className="shell py-24 text-center text-sm font-light text-[var(--muted)]">Loading your bag…</div>;
+    return <div className="shell py-24 text-center text-sm font-light text-[var(--muted)]">Loading your cart…</div>;
   }
 
   if (!items.length) {
     return (
       <div className="shell py-24 text-center">
         <ShoppingBag className="mx-auto text-[var(--faint)]" size={48} />
-        <h1 className="mt-6 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Your bag is empty.</h1>
+        <h1 className="mt-6 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Your cart is empty.</h1>
         <p className="mt-3 text-base font-extralight text-[var(--muted)]">Good things are waiting in the collection.</p>
-        <Link className="btn btn-primary mt-8 rounded-full px-7 py-3" href="/products">
-          Explore products <ArrowRight size={16} />
+        <Link className="btn btn-primary mt-8 rounded-full px-7 py-3" href="/dashboard/products">
+          Try now <ArrowRight size={16} />
         </Link>
       </div>
     );
@@ -46,10 +47,10 @@ export default function CartPage() {
       <div className="flex items-end justify-between border-b border-[var(--line)] pb-6">
         <div>
           <p className="eyebrow">Your selection</p>
-          <h1 className="mt-2 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Shopping Bag</h1>
+          <h1 className="mt-2 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Cart</h1>
         </div>
         <button onClick={clearCart} className="text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
-          Clear bag
+          Clear cart
         </button>
       </div>
 
@@ -61,14 +62,14 @@ export default function CartPage() {
               key={item.slug}
               className="rounded-xl border border-[var(--line)] bg-[var(--surface)] p-4 grid grid-cols-[100px_1fr] gap-5 sm:grid-cols-[120px_1fr]"
             >
-              <Link href={`/products/${item.slug}`} className="relative aspect-square overflow-hidden rounded-lg bg-[var(--raised)] border border-white/5">
+              <Link href={`/dashboard/products/${item.slug}`} className="relative aspect-square overflow-hidden rounded-lg bg-[var(--raised)] border border-white/5">
                 <Image src={item.image} alt={item.name} fill className="object-cover" />
               </Link>
               <div className="flex flex-col justify-between py-1">
                 <div className="flex justify-between gap-4">
                   <div>
                     <span className="text-[10px] font-light tracking-[0.2em] uppercase text-[var(--accent)]">{item.category}</span>
-                    <Link href={`/products/${item.slug}`} className="mt-1 block text-base font-light text-[var(--ink)] hover:text-[var(--accent)] transition-colors">
+                    <Link href={`/dashboard/products/${item.slug}`} className="mt-1 block text-base font-light text-[var(--ink)] hover:text-[var(--accent)] transition-colors">
                       {item.name}
                     </Link>
                     <p className="mt-1 font-mono text-xs text-[var(--faint)]">{formatMoney(item.priceCents)} each</p>
@@ -160,7 +161,7 @@ export default function CartPage() {
           <Link href="/checkout" className="btn btn-primary mt-6 w-full rounded-full py-3.5 text-sm font-medium">
             Proceed to checkout <ArrowRight size={16} />
           </Link>
-          <Link href="/products" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
+          <Link href="/dashboard/products" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
             Continue shopping
           </Link>
         </aside>
@@ -168,3 +169,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+export default function CartPage() { return <AccountShell title="Cart"><CartContent /></AccountShell>; }

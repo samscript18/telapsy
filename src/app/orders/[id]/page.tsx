@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { OrderView, type OrderViewData } from "@/components/order-view";
+import { AccountShell } from "@/components/account-shell";
 export default function OrderPage() {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading, error } = useQuery<{ order: OrderViewData }>({
@@ -17,12 +18,12 @@ export default function OrderPage() {
   });
 
   if (isLoading) {
-    return <div className="shell py-24 text-center text-sm font-light text-[var(--muted)]">Loading order details…</div>;
+    return <AccountShell title="Order details"><div className="py-24 text-center text-sm font-light text-[var(--muted)]">Loading order details…</div></AccountShell>;
   }
 
   if (error || !data) {
     return (
-      <div className="shell py-24 text-center">
+      <AccountShell title="Order details"><div className="py-24 text-center">
         <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)]">Order unavailable.</h1>
         <p className="mt-3 text-xs font-mono text-[var(--retired)]">
           {error instanceof Error ? error.message : "Order may not exist or belongs to another account."}
@@ -30,12 +31,12 @@ export default function OrderPage() {
         <Link href="/orders" className="btn btn-secondary mt-7 rounded-full px-7 py-3 text-sm">
           Back to orders
         </Link>
-      </div>
+      </div></AccountShell>
     );
   }
 
   return (
-    <div className="shell py-12">
+    <AccountShell title="Order details"><div>
       <div className="mb-10 border-b border-[var(--line)] pb-6">
         <p className="eyebrow">Order Details</p>
         <h1 className="mt-2 font-mono text-3xl font-light text-[var(--accent)] md:text-5xl">
@@ -47,6 +48,6 @@ export default function OrderPage() {
       </div>
 
       <OrderView order={data.order} />
-    </div>
+    </div></AccountShell>
   );
 }
