@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, AudioLines, PackageCheck, RotateCcw, Search, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, AudioLines, BellRing, CircleCheck, PackageCheck, RotateCcw, Search, ShieldCheck, Sparkles, WalletCards } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { catalog } from "@/lib/catalog";
 import { getSessionUserId } from "@/lib/auth";
@@ -50,16 +50,13 @@ export default async function HomePage() {
 						</div>
 
 						<div className="mt-8 flex flex-col gap-3 sm:flex-row">
-							<Link href="/products" className="btn btn-primary min-h-12 px-7">
+							<Link href={authenticated ? "/dashboard/products" : "/signup"} className="btn btn-primary min-h-12 px-7">
 								Try now <ArrowRight size={16} />
-							</Link>
-							<Link href="/signup" className="btn btn-secondary min-h-12 px-7">
-								Sign up
 							</Link>
 						</div>
 
 						<form
-							action="/products"
+							action={authenticated ? "/dashboard/products" : "/products"}
 							className="mt-6 flex max-w-xl items-center rounded-full border border-white/10 bg-white/[0.035] p-1.5 backdrop-blur-xl transition focus-within:border-[var(--accent)]/50"
 						>
 							<Search className="ml-3 text-[var(--faint)]" size={17} aria-hidden="true" />
@@ -90,7 +87,7 @@ export default async function HomePage() {
 					<div className="kinetic-stage hidden lg:block" aria-label={`Featured product: ${signature.name}`}>
 						<div className="orbit-ring" aria-hidden="true" />
 						<div className="orbit-ring orbit-ring-secondary" aria-hidden="true" />
-						<Link href={authenticated ? `/products/${signature.slug}` : `/signin?next=${encodeURIComponent(`/products/${signature.slug}`)}`} className="artifact-frame group">
+						<Link href={authenticated ? `/dashboard/products/${signature.slug}` : `/signin?next=${encodeURIComponent(`/dashboard/products/${signature.slug}`)}`} className="artifact-frame group">
 							<Image src={signature.image} alt={signature.name} fill priority className="object-cover transition duration-1000 group-hover:scale-110" sizes="(min-width: 1024px) 44vw, 0vw" />
 							<span className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black via-black/70 to-transparent px-8 pb-8 pt-28">
 								<span className="block font-mono text-[10px] tracking-[0.18em] text-[var(--accent)] uppercase">Signature / 001</span>
@@ -137,7 +134,7 @@ export default async function HomePage() {
 					{categories.map((category, index) => (
 						<Link
 							key={category.name}
-							href={`/products?category=${category.name}`}
+							href={`${authenticated ? "/dashboard/products" : "/products"}?category=${category.name}`}
 							data-reveal
 							style={{ "--reveal-delay": `${index * 80}ms` } as React.CSSProperties}
 							className="group relative min-h-[280px] overflow-hidden bg-[var(--canvas)] p-8 transition-colors duration-500 hover:bg-[var(--surface)] md:p-10"
@@ -170,7 +167,7 @@ export default async function HomePage() {
 							<p className="eyebrow">Objects in focus</p>
 							<h2 className="mt-3 text-4xl font-extralight tracking-[-0.05em] md:text-6xl">The current edit.</h2>
 						</div>
-						<Link href="/products" className="group hidden items-center gap-2 font-mono text-xs text-[var(--accent)] md:flex">
+						<Link href={authenticated ? "/dashboard/products" : "/products"} className="group hidden items-center gap-2 font-mono text-xs text-[var(--accent)] md:flex">
 							All forty pieces <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
 						</Link>
 					</div>
@@ -180,6 +177,27 @@ export default async function HomePage() {
 								<ProductCard product={product} authenticated={authenticated} />
 							</div>
 						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="shell py-24 lg:py-32">
+				<div data-reveal className="grid gap-8 lg:grid-cols-[.82fr_1.18fr] lg:items-end">
+					<div><p className="eyebrow">From discovery to delivery</p><h2 className="mt-4 text-4xl font-extralight leading-[.96] tracking-[-.055em] md:text-6xl">A smoother way to find what lasts.</h2></div>
+					<p className="max-w-xl text-sm font-light leading-7 text-[var(--muted)] lg:justify-self-end">Telapsy keeps the entire decision in one place—from a tightly edited catalogue to live totals, clear order status, and a personal notification trail.</p>
+				</div>
+				<div className="mt-12 grid gap-4 md:grid-cols-3">
+					<JourneyStep step="01" icon={<Search size={20}/>} title="Discover deliberately" text="Search forty considered products or move through four focused departments." />
+					<JourneyStep step="02" icon={<WalletCards size={20}/>} title="Checkout your way" text="Use Telapsy credits or a clearly simulated card, with totals recalculated securely." />
+					<JourneyStep step="03" icon={<BellRing size={20}/>} title="Stay in the loop" text="See private confirmations and order updates in your personal notification center." />
+				</div>
+			</section>
+
+			<section className="border-y border-[var(--line)] bg-[linear-gradient(120deg,rgba(232,185,106,.07),rgba(255,255,255,.015))] py-20">
+				<div className="shell grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
+					<div data-reveal><p className="eyebrow">Confidence built into every screen</p><h2 className="mt-4 max-w-3xl text-4xl font-extralight tracking-[-.05em] md:text-5xl">The details agree—from cart to confirmation.</h2><p className="mt-5 max-w-2xl text-sm font-light leading-7 text-[var(--muted)]">Prices are confirmed on the server, payment is simulated safely, and every order preserves exactly what you purchased.</p></div>
+					<div data-reveal className="grid min-w-[280px] gap-3 sm:grid-cols-3 lg:grid-cols-1">
+						{["Authoritative totals", "Private account activity", "Immutable order history"].map((item) => <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-xs text-[var(--muted)]"><CircleCheck size={17} className="text-[var(--accent)]"/>{item}</div>)}
 					</div>
 				</div>
 			</section>
@@ -223,4 +241,12 @@ function Trust({ icon, title, text }: { icon: React.ReactNode; title: string; te
 			</span>
 		</div>
 	);
+}
+
+function JourneyStep({ step, icon, title, text }: { step: string; icon: React.ReactNode; title: string; text: string }) {
+	return <article data-reveal className="group relative min-h-64 overflow-hidden rounded-[1.6rem] border border-white/10 bg-white/[.025] p-7 transition duration-500 hover:-translate-y-1 hover:border-[var(--accent)]/35">
+		<span className="absolute -right-2 -top-7 font-mono text-8xl font-bold text-white/[.025] transition group-hover:text-[var(--accent)]/[.055]">{step}</span>
+		<span className="grid size-12 place-items-center rounded-2xl border border-[var(--accent)]/20 bg-[var(--accent)]/10 text-[var(--accent)]">{icon}</span>
+		<h3 className="mt-10 text-xl font-light tracking-[-.035em]">{title}</h3><p className="mt-3 text-xs font-light leading-6 text-[var(--muted)]">{text}</p>
+	</article>;
 }

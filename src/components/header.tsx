@@ -44,10 +44,11 @@ export function Header() {
           <span className="text-lg font-light tracking-[-0.03em] text-[var(--ink)]">TELAPSY</span>
         </Link>
 
-        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
+        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-5 lg:gap-9 md:flex">
           {navigation.map((item) => {
             const active = isActive(pathname, item.href);
-            return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`public-nav-link ${active ? "is-active" : ""}`}>{item.label}</Link>;
+            const href = data?.user && item.href === "/products" ? "/dashboard/products" : item.href;
+            return <Link key={item.href} href={href} aria-current={active ? "page" : undefined} className={`public-nav-link ${active ? "is-active" : ""}`}>{item.label}</Link>;
           })}
         </div>
 
@@ -58,7 +59,7 @@ export function Header() {
               <Link href="/dashboard" className="btn btn-primary !px-5 !py-2.5 text-xs"><LayoutDashboard size={15}/>Dashboard</Link>
             </>
           ) : (
-            <><Link href="/signin" className="public-auth-link">Login</Link><Link href="/products" className="btn btn-primary !px-5 !py-2.5 text-xs">Try Telapsy</Link></>
+            <><Link href="/signin" className="public-auth-link">Login</Link><Link href="/signup" className="btn btn-primary !px-5 !py-2.5 text-xs">Try Telapsy</Link></>
           )}
         </div>
 
@@ -67,7 +68,7 @@ export function Header() {
           <div className="absolute inset-x-0 top-[calc(100%+0.6rem)] grid gap-2 rounded-2xl border border-white/10 bg-[#0a0a0a]/95 p-3 shadow-2xl backdrop-blur-2xl md:hidden">
             {navigation.map((item) => { const active = isActive(pathname, item.href); return <Link key={item.href} href={item.href} onClick={() => setOpen(false)} aria-current={active ? "page" : undefined} className={`mobile-public-nav ${active ? "is-active" : ""}`}>{item.label}</Link>; })}
             <div className="mt-1 grid grid-cols-2 gap-2 border-t border-white/10 pt-3">
-              {data?.user ? <><Link href="/dashboard/cart" onClick={() => setOpen(false)} className="btn btn-secondary !px-3 !py-3 text-xs">Cart ({hydrated ? count : 0})</Link><Link href="/dashboard" onClick={() => setOpen(false)} className="btn btn-primary !px-3 !py-3 text-xs">Dashboard</Link></> : <><Link href="/signin" onClick={() => setOpen(false)} className="btn btn-secondary !px-3 !py-3 text-xs">Login</Link><Link href="/products" onClick={() => setOpen(false)} className="btn btn-primary !px-3 !py-3 text-xs">Try Telapsy</Link></>}
+              {data?.user ? <><Link href="/dashboard/cart" onClick={() => setOpen(false)} className="btn btn-secondary !px-3 !py-3 text-xs">Cart ({hydrated ? count : 0})</Link><Link href="/dashboard" onClick={() => setOpen(false)} className="btn btn-primary !px-3 !py-3 text-xs">Dashboard</Link></> : <><Link href="/signin" onClick={() => setOpen(false)} className="btn btn-secondary !px-3 !py-3 text-xs">Login</Link><Link href="/signup" onClick={() => setOpen(false)} className="btn btn-primary !px-3 !py-3 text-xs">Try Telapsy</Link></>}
             </div>
           </div>
         )}
