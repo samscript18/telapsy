@@ -5,12 +5,17 @@ import {
   ArrowUpRight,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   CreditCard,
   PackageOpen,
-  ShoppingBag,
+  Search,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { AccountShell } from "@/components/account-shell";
 import type { OrderViewData } from "@/components/order-view";
 import { formatMoney } from "@/lib/pricing";
@@ -23,15 +28,39 @@ function paymentLabel(paymentMethod: string) {
   return paymentMethod === "balance" ? "Telapsy Balance" : "Simulated Card";
 }
 
+interface OrdersResponse {
+  orders: OrderViewData[];
+  pagination: { page: number; pageSize: number; total: number; totalPages: number };
+}
+
+const statusOptions = ["all", "processing", "shipped", "delivered", "cancelled"] as const;
+
 export default function OrdersPage() {
-  const { data, isLoading } = useQuery<{ orders: OrderViewData[] }>({
-    queryKey: ["orders"],
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<(typeof statusOptions)[number]>("all");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  const { data, isLoading, isFetching } = useQuery<OrdersResponse>({
+    queryKey: ["orders", search, status, page],
     queryFn: async () => {
-      const r = await fetch("/api/orders");
+      const params = new URLSearchParams({ page: String(page) });
+      if (search) params.set("q", search);
+      if (status !== "all") params.set("status", status);
+      const r = await fetch(`/api/orders?${params.toString()}`);
       if (!r.ok) throw new Error();
       return r.json();
     },
     retry: false,
+    placeholderData: (previous) => previous,
   });
 
   if (isLoading) {
@@ -79,22 +108,46 @@ export default function OrdersPage() {
             <h1>My Orders</h1>
             <p>Track every Telapsy order and revisit the details whenever you need them.</p>
           </div>
-          {data.orders.length > 0 && (
-            <div className="hidden items-center gap-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-right sm:flex">
-              <span className="grid size-10 place-items-center rounded-xl bg-[rgba(232,185,106,.1)] text-[var(--accent)]">
-                <ShoppingBag size={18} />
-              </span>
-              <div>
-                <strong className="block text-lg font-medium text-[var(--ink)]">
-                  {data.orders.length}
-                </strong>
-                <span className="text-[10px] uppercase tracking-[0.16em] text-[var(--faint)]">
-                  {data.orders.length === 1 ? "Order" : "Orders"}
-                </span>
-              </div>
-            </div>
-          )}
         </header>
+
+        <section className="rounded-[1.5rem] border border-[var(--line)] bg-[linear-gradient(135deg,rgba(255,255,255,.035),rgba(255,255,255,.015))] p-3 sm:p-4" aria-label="Find orders">
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <label className="relative block">
+              <span className="sr-only">Search by order number or product</span>
+              <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--accent)]" />
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="Search order number or product"
+                className="h-12 w-full rounded-2xl border border-[var(--line)] bg-black/20 pl-11 pr-11 text-sm text-[var(--ink)] outline-none transition placeholder:text-[var(--faint)] focus:border-[rgba(232,185,106,.4)] focus:ring-4 focus:ring-[rgba(232,185,106,.06)]"
+              />
+              {searchInput && (
+                <button type="button" onClick={() => setSearchInput("")} aria-label="Clear order search" className="absolute right-3 top-1/2 grid size-8 -translate-y-1/2 place-items-center rounded-full text-[var(--faint)] transition hover:bg-white/5 hover:text-[var(--ink)]">
+                  <X size={15} />
+                </button>
+              )}
+            </label>
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0" role="group" aria-label="Filter orders by status">
+              <SlidersHorizontal size={15} className="mr-1 shrink-0 text-[var(--faint)]" />
+              {statusOptions.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  aria-pressed={status === option}
+                  onClick={() => { setStatus(option); setPage(1); }}
+                  className={`shrink-0 rounded-full border px-4 py-2.5 text-[10px] font-medium capitalize tracking-[0.04em] transition ${status === option ? "border-[rgba(232,185,106,.42)] bg-[rgba(232,185,106,.12)] text-[var(--accent-bright)]" : "border-[var(--line)] bg-black/15 text-[var(--faint)] hover:border-[var(--line-strong)] hover:text-[var(--ink)]"}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-[var(--line)] px-1 pt-3 text-[10px] text-[var(--faint)]">
+            <span>{data.pagination.total} {data.pagination.total === 1 ? "matching order" : "matching orders"}</span>
+            {isFetching && <span className="text-[var(--accent)]">Updating results…</span>}
+          </div>
+        </section>
 
         {!data.orders.length ? (
           <div className="relative mt-10 overflow-hidden rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface)] px-6 py-20 text-center sm:px-10">
@@ -102,18 +155,11 @@ export default function OrdersPage() {
             <span className="relative mx-auto grid size-16 place-items-center rounded-2xl border border-[rgba(232,185,106,.2)] bg-[rgba(232,185,106,.08)] text-[var(--accent)]">
               <PackageOpen size={28} />
             </span>
-            <h2 className="relative mt-5 text-2xl font-light text-[var(--ink)]">
-              Your order history starts here.
-            </h2>
+            <h2 className="relative mt-5 text-2xl font-light text-[var(--ink)]">{search || status !== "all" ? "No matching orders found." : "Your order history starts here."}</h2>
             <p className="relative mx-auto mt-2 max-w-md text-sm leading-6 text-[var(--muted)]">
-              Discover something you love, place your first order, and track it from this page.
+              {search || status !== "all" ? "Try another order number, product name, or status filter." : "Discover something you love, place your first order, and track it from this page."}
             </p>
-            <Link
-              href="/dashboard/products"
-              className="btn btn-primary relative mt-7 rounded-full px-7 py-3 text-sm"
-            >
-              Shop products
-            </Link>
+            {search || status !== "all" ? <button type="button" onClick={() => { setSearchInput(""); setSearch(""); setStatus("all"); setPage(1); }} className="btn btn-primary relative mt-7 rounded-full px-7 py-3 text-sm">Clear filters</button> : <Link href="/dashboard/products" className="btn btn-primary relative mt-7 rounded-full px-7 py-3 text-sm">Shop products</Link>}
           </div>
         ) : (
           <div className="mt-8 grid gap-5">
@@ -232,6 +278,15 @@ export default function OrdersPage() {
                 </Link>
               );
             })}
+            {data.pagination.totalPages > 1 && (
+              <nav className="mt-3 flex flex-col gap-4 rounded-2xl border border-[var(--line)] bg-white/[.018] p-4 sm:flex-row sm:items-center sm:justify-between" aria-label="Order history pages">
+                <p className="text-xs text-[var(--faint)]">Page <span className="text-[var(--ink)]">{data.pagination.page}</span> of <span className="text-[var(--ink)]">{data.pagination.totalPages}</span></p>
+                <div className="grid grid-cols-2 gap-2">
+                  <button type="button" disabled={data.pagination.page <= 1 || isFetching} onClick={() => setPage((current) => Math.max(1, current - 1))} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs text-[var(--muted)] transition hover:border-[rgba(232,185,106,.3)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-35"><ChevronLeft size={15} />Previous</button>
+                  <button type="button" disabled={data.pagination.page >= data.pagination.totalPages || isFetching} onClick={() => setPage((current) => Math.min(data.pagination.totalPages, current + 1))} className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-[var(--line)] px-4 text-xs text-[var(--muted)] transition hover:border-[rgba(232,185,106,.3)] hover:text-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-35">Next<ChevronRight size={15} /></button>
+                </div>
+              </nav>
+            )}
           </div>
         )}
       </div>
