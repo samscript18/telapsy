@@ -31,7 +31,7 @@ export default function DashboardPage() {
 					</span>
 					<h2 className="relative mt-6 max-w-4xl text-4xl font-extralight leading-[.94] tracking-[-.058em] sm:text-6xl">
 						Welcome back{user ? `, ${user.name.split(" ")[0]}` : ""}.<br />
-						<span className="text-[var(--accent-bright)]">What will you find today?</span>
+						<span className="text-[var(--accent-bright)] text-4xl sm:text-5xl">What will you find today?</span>
 					</h2>
 					<p className="relative mt-5 max-w-xl text-sm font-light leading-7 text-[var(--muted)]">Your balance, orders, and private updates are synchronized here. Pick up exactly where you left off.</p>
 					<div className="relative mt-8 flex flex-wrap gap-3">
@@ -108,12 +108,49 @@ export default function DashboardPage() {
 
 				<div className="mt-5 grid gap-5 xl:grid-cols-[.8fr_1.2fr]">
 					<section className="rounded-[1.7rem] border border-[var(--accent)]/20 bg-[radial-gradient(circle_at_100%_0,rgba(232,185,106,.13),transparent_18rem),rgba(255,255,255,.022)] p-5 sm:p-7" data-reveal>
-						<p className="eyebrow">Shopping advantages</p><h3 className="mt-2 text-2xl font-semibold tracking-[-.04em]">More value, less friction.</h3>
-						<div className="mt-6 grid gap-2 sm:grid-cols-3 xl:grid-cols-1"><Advantage icon={<Percent size={17}/>} title="20% off" text="Use KANE or KANE2026"/><Advantage icon={<Truck size={17}/>} title="Free delivery" text="On every Telapsy order"/><Advantage icon={<Layers3 size={17}/>} title="Four departments" text="Forty considered pieces"/></div>
+						<p className="eyebrow">Shopping advantages</p>
+						<h3 className="mt-2 text-2xl font-semibold tracking-[-.04em]">More value, less friction.</h3>
+						<div className="mt-6 grid gap-2 sm:grid-cols-3 xl:grid-cols-1">
+							<Advantage icon={<Percent size={17} />} title="20% off" text="Use KANE or KANE2026" />
+							<Advantage icon={<Truck size={17} />} title="Free delivery" text="On every Telapsy order" />
+							<Advantage icon={<Layers3 size={17} />} title="Four departments" text="Forty considered pieces" />
+						</div>
 					</section>
 					<section className="rounded-[1.7rem] border border-white/10 bg-white/[.025] p-5 sm:p-7" data-reveal>
-						<div className="flex items-end justify-between gap-4"><div><p className="eyebrow">Account pulse</p><h3 className="mt-2 text-2xl font-semibold tracking-[-.04em]">Latest notifications</h3></div><Link href="/notifications" className="text-xs text-[var(--accent)]">View all</Link></div>
-						<div className="mt-6 grid gap-2">{notificationData?.notifications?.length ? notificationData.notifications.slice(0,3).map((notification) => <Link href={notification.actionUrl ?? "/notifications"} key={notification.id} className="group flex items-start gap-3 rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-[var(--accent)]/25"><span className={`mt-1 size-2 shrink-0 rounded-full ${notification.read ? "bg-white/20" : "bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]"}`}/><span className="min-w-0 flex-1"><strong className="block text-xs font-semibold">{notification.title}</strong><small className="mt-1 line-clamp-1 block text-[10px] text-[var(--faint)]">{notification.message}</small></span><ArrowRight size={13} className="mt-1 text-[var(--faint)] transition group-hover:translate-x-1 group-hover:text-[var(--accent)]"/></Link>) : <div className="grid min-h-40 place-items-center rounded-2xl border border-dashed border-white/10 text-center"><div><Bell className="mx-auto text-[var(--faint)]"/><p className="mt-3 text-xs text-[var(--muted)]">Your account is all caught up.</p></div></div>}</div>
+						<div className="flex items-end justify-between gap-4">
+							<div>
+								<p className="eyebrow">Account pulse</p>
+								<h3 className="mt-2 text-2xl font-semibold tracking-[-.04em]">Latest notifications</h3>
+							</div>
+							<Link href="/notifications" className="text-xs text-[var(--accent)]">
+								View all
+							</Link>
+						</div>
+						<div className="mt-6 grid gap-2">
+							{notificationData?.notifications?.length ? (
+								notificationData.notifications.slice(0, 3).map((notification) => (
+									<Link
+										href={notification.actionUrl ?? "/notifications"}
+										key={notification.id}
+										className="group flex items-start gap-3 rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-[var(--accent)]/25"
+									>
+										<span className={`mt-1 size-2 shrink-0 rounded-full ${notification.read ? "bg-white/20" : "bg-[var(--accent)] shadow-[0_0_10px_var(--accent)]"}`} />
+										<span className="min-w-0 flex-1">
+											<strong className="block text-xs font-semibold">{notification.title}</strong>
+											<small className="mt-1 line-clamp-1 block text-[10px] text-[var(--faint)]">{notification.message}</small>
+										</span>
+										<ArrowRight size={13} className="mt-1 text-[var(--faint)] transition group-hover:translate-x-1 group-hover:text-[var(--accent)]" />
+									</Link>
+								))
+							) : (
+								<div className="grid min-h-40 place-items-center rounded-2xl border border-dashed border-white/10 text-center">
+									<div>
+										<Bell className="mx-auto text-[var(--faint)]" />
+										<p className="mt-3 text-xs text-[var(--muted)]">Your account is all caught up.</p>
+									</div>
+								</div>
+							)}
+						</div>
 					</section>
 				</div>
 			</div>
@@ -125,13 +162,23 @@ function Metric({ icon, label, value, note }: { icon: React.ReactNode; label: st
 	return (
 		<article data-reveal className="member-stat-card !min-h-48 !p-6">
 			<span className="member-stat-icon !right-5 !top-5">{icon}</span>
-			<p>{label}</p>
+			<p className="text-sm! font-medium">{label}</p>
 			<strong>{value}</strong>
 			<small>{note}</small>
 		</article>
 	);
 }
-function Advantage({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) { return <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/15 p-4"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--accent)]/10 text-[var(--accent)]">{icon}</span><span><strong className="block text-xs font-semibold">{title}</strong><small className="mt-1 block text-[9px] text-[var(--faint)]">{text}</small></span></div>; }
+function Advantage({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
+	return (
+		<div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/15 p-4">
+			<span className="grid size-10 shrink-0 place-items-center rounded-xl bg-[var(--accent)]/10 text-[var(--accent)]">{icon}</span>
+			<span>
+				<strong className="block text-xs font-semibold">{title}</strong>
+				<small className="mt-1 block text-[9px] text-[var(--faint)]">{text}</small>
+			</span>
+		</div>
+	);
+}
 function QuickLink({ href, icon, title, text }: { href: string; icon: React.ReactNode; title: string; text: string }) {
 	return (
 		<Link href={href} className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-black/15 p-4 transition hover:border-[var(--accent)]/30 hover:bg-[var(--accent)]/[.045]">

@@ -38,7 +38,7 @@ function CartContent() {
       setMessage("20% off applied to your merchandise.");
       setCode("");
     } else {
-      setMessage("That promo code isn’t valid. Try KANE or KANE2026.");
+      setMessage("This promo code is not valid. Try KANE or KANE2026.");
     }
   };
 
