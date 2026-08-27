@@ -8,9 +8,8 @@ export const signupSchema = z.object({
 export const signinSchema = z.object({ email: z.email().transform((value) => value.toLowerCase()), password: z.string().min(1) });
 export const accountUpdateSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name.").max(80).optional(),
-  profileImage: z.string().max(3_000_000, "Profile image is too large.").regex(/^data:image\/(jpeg|png|webp);base64,/, "Choose a JPEG, PNG, or WebP image.").optional(),
   preferences: z.object({ orderUpdates: z.boolean(), productNews: z.boolean(), compactDashboard: z.boolean() }).optional(),
-}).refine((value) => value.name !== undefined || value.profileImage !== undefined || value.preferences !== undefined, "No account changes supplied.");
+}).refine((value) => value.name !== undefined || value.preferences !== undefined, "No account changes supplied.");
 
 export const passwordChangeSchema = z.object({
   currentPassword: z.string().min(1, "Enter your current password."),

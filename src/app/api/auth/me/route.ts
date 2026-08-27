@@ -21,7 +21,6 @@ export async function PATCH(request: Request) {
   await connectDb();
   const update: Record<string, unknown> = {};
   if (parsed.data.name !== undefined) update.name = parsed.data.name;
-  if (parsed.data.profileImage !== undefined) update.profileImage = parsed.data.profileImage;
   if (parsed.data.preferences !== undefined) update.preferences = parsed.data.preferences;
   const user = await User.findByIdAndUpdate(id, { $set: update }, { new: true, runValidators: true }).select("name email balanceCents authProvider profileImage createdAt preferences").lean() as unknown as AccountUser | null;
   if (!user) return NextResponse.json({ error: "Account not found." }, { status: 404 });

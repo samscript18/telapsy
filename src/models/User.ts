@@ -9,6 +9,7 @@ const userSchema = new Schema({
   passwordResetTokenHash: { type: String, select: false },
   passwordResetExpiresAt: { type: Date, select: false },
   profileImage: { type: String },
+  profileImagePublicId: { type: String, select: false },
   sessionVersion: { type: Number, required: true, default: 0, select: false },
   balanceCents: { type: Number, required: true, default: 100000, min: 0 },
   preferences: {

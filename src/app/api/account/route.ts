@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { getSessionContext, SESSION_COOKIE } from "@/lib/auth";
+import { destroyCloudinaryImage } from "@/lib/cloudinary";
 import { connectDb } from "@/lib/db";
 import { accountDeletionSchema } from "@/lib/validation";
 import { AuthSession } from "@/models/AuthSession";
@@ -15,7 +16,7 @@ export async function DELETE(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "Type DELETE exactly to confirm account deletion." }, { status: 400 });
 
   await connectDb();
-  const user = await User.findById(context.userId).select("+passwordHash");
+  const user = await User.findById(context.userId).select("+passwordHash +profileImagePublicId");
   if (!user) return NextResponse.json({ error: "Account not found." }, { status: 404 });
   if (user.passwordHash && (!parsed.data.password || !(await bcrypt.compare(parsed.data.password, user.passwordHash)))) {
     return NextResponse.json({ error: "Enter your current password to delete this account." }, { status: 400 });
@@ -27,6 +28,9 @@ export async function DELETE(request: Request) {
     Order.deleteMany({ userId: context.userId }),
     User.deleteOne({ _id: context.userId }),
   ]);
+  if (user.profileImagePublicId) {
+    try { await destroyCloudinaryImage(user.profileImagePublicId); } catch { /* Account deletion must not be blocked by remote cleanup. */ }
+  }
   const response = NextResponse.json({ ok: true });
   response.cookies.delete(SESSION_COOKIE);
   return response;

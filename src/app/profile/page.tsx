@@ -32,6 +32,7 @@ export default function ProfilePage() {
   const [imageStatus, setImageStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const [savingImage, setSavingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageName, setImageName] = useState("");
 
@@ -76,16 +77,24 @@ export default function ProfilePage() {
     reader.onload = () => {
       setImagePreview(String(reader.result));
       setImageName(file.name);
+      setSelectedImage(file);
     };
     reader.readAsDataURL(file);
   }
 
   async function saveImage() {
-    if (!imagePreview) return;
+    if (!selectedImage) return;
     setSavingImage(true);
     setImageStatus("");
     try {
-      await update({ profileImage: imagePreview });
+      const body = new FormData();
+      body.set("file", selectedImage);
+      const response = await fetch("/api/profile-image", { method: "POST", body });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error ?? "Could not upload profile image.");
+      client.setQueryData<{ user: SessionUser }>(["me"], (current) => current ? { user: { ...current.user, profileImage: result.profileImage } } : current);
+      setImagePreview(result.profileImage);
+      setSelectedImage(null);
       setImageStatus("Your profile image has been updated.");
       setImageName("");
     } catch (error) {
@@ -117,7 +126,7 @@ export default function ProfilePage() {
               <p>{user.email}</p>
               <div><span data-tone="positive"><CheckCircle2 size={13} />Active</span><span><ShieldCheck size={13} />Verified account</span></div>
             </div>
-            <div className="profile-hero-actions"><a href="#profile-photo"><Camera size={15} />Edit photo</a><Link href="/settings#security"><ShieldCheck size={15} />Security</Link></div>
+            <div className="profile-hero-actions"><a href="#profile-photo"><Camera size={15} />Edit photo</a><Link href="/settings?tab=security"><ShieldCheck size={15} />Security</Link></div>
           </section>
 
           <div className="profile-content-grid">
@@ -144,7 +153,7 @@ export default function ProfilePage() {
                 <span><ImagePlus className="mx-auto text-[var(--accent)]" size={24} /><strong className="mt-3 block text-sm font-medium text-[var(--ink)]">Choose an image</strong><small className="mt-1 block text-[10px] leading-5 text-[var(--faint)]">JPEG, PNG or WebP · Maximum 2 MB</small></span>
               </label>
               {imageStatus && <p role="status" className="account-form-status"><Check size={14} />{imageStatus}</p>}
-              <button type="button" onClick={saveImage} disabled={!imagePreview || savingImage} className="btn btn-primary mt-4 w-full rounded-full py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40">{savingImage ? "Updating image…" : "Update profile image"}</button>
+              <button type="button" onClick={saveImage} disabled={!selectedImage || savingImage} className="btn btn-primary mt-4 w-full rounded-full py-3 text-xs disabled:cursor-not-allowed disabled:opacity-40">{savingImage ? "Uploading to Cloudinary…" : "Update profile image"}</button>
             </section>
           </div>
 
