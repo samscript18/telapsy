@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { OrderView, type OrderViewData } from "@/components/order-view";
@@ -37,6 +38,13 @@ export default function OrderPage() {
 
   return (
     <AccountShell title="Order details"><div>
+      <Link
+        href="/orders"
+        className="mb-7 inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--line)] bg-white/[0.025] px-4 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/[0.06] hover:text-[var(--accent)]"
+      >
+        <ArrowLeft size={15} />
+        Back to orders
+      </Link>
       <div className="mb-10 border-b border-[var(--line)] pb-6">
         <p className="eyebrow">Order Details</p>
         <h1 className="mt-2 font-mono text-3xl font-light text-[var(--accent)] md:text-5xl">
