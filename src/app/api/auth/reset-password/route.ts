@@ -23,6 +23,8 @@ export async function POST(request: Request) {
   const user = await User.findOne({
     passwordResetTokenHash: hashPasswordResetToken(parsed.data.token),
     passwordResetExpiresAt: { $gt: new Date() },
+    googleSub: { $exists: false },
+    authProvider: "password",
   }).select("+passwordResetTokenHash +passwordResetExpiresAt");
 
   if (!user) {
@@ -33,7 +35,7 @@ export async function POST(request: Request) {
   }
 
   user.passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  user.authProvider = user.googleSub ? "both" : "password";
+  user.authProvider = "password";
   user.passwordResetTokenHash = undefined;
   user.passwordResetExpiresAt = undefined;
   await user.save();

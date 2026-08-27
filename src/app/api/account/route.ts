@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { getSessionContext, SESSION_COOKIE } from "@/lib/auth";
+import { canUsePasswordAuthentication } from "@/lib/auth-provider";
 import { destroyCloudinaryImage } from "@/lib/cloudinary";
 import { connectDb } from "@/lib/db";
 import { accountDeletionSchema } from "@/lib/validation";
@@ -18,7 +19,7 @@ export async function DELETE(request: Request) {
   await connectDb();
   const user = await User.findById(context.userId).select("+passwordHash +profileImagePublicId");
   if (!user) return NextResponse.json({ error: "Account not found." }, { status: 404 });
-  if (user.passwordHash && (!parsed.data.password || !(await bcrypt.compare(parsed.data.password, user.passwordHash)))) {
+  if (canUsePasswordAuthentication(user) && user.passwordHash && (!parsed.data.password || !(await bcrypt.compare(parsed.data.password, user.passwordHash)))) {
     return NextResponse.json({ error: "Enter your current password to delete this account." }, { status: 400 });
   }
 

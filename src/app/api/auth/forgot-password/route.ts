@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectDb } from "@/lib/db";
+import { canUsePasswordAuthentication } from "@/lib/auth-provider";
 import { createPasswordResetToken, sendPasswordResetEmail } from "@/lib/password-reset";
 import { User } from "@/models/User";
 
@@ -11,7 +12,7 @@ export async function POST(request: Request) {
 	await connectDb();
 	const user = await User.findOne({ email: parsed.data.email });
 	let previewUrl: string | undefined;
-	if (user) {
+	if (canUsePasswordAuthentication(user)) {
 		const { token, tokenHash, expiresAt } = createPasswordResetToken();
 		user.passwordResetTokenHash = tokenHash;
 		user.passwordResetExpiresAt = expiresAt;

@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { getSessionContext, SESSION_COOKIE } from "@/lib/auth";
+import { canUsePasswordAuthentication } from "@/lib/auth-provider";
 import { connectDb } from "@/lib/db";
 import { passwordChangeSchema } from "@/lib/validation";
 import { AuthSession } from "@/models/AuthSession";
@@ -15,7 +16,7 @@ export async function PATCH(request: Request) {
   await connectDb();
   const user = await User.findById(context.userId).select("+passwordHash +sessionVersion");
   if (!user) return NextResponse.json({ error: "Account not found." }, { status: 404 });
-  if (!user.passwordHash) return NextResponse.json({ error: "This account uses Google authentication. Manage its password through Google." }, { status: 400 });
+  if (!canUsePasswordAuthentication(user) || !user.passwordHash) return NextResponse.json({ error: "This account uses Google authentication. Manage its password through Google." }, { status: 403 });
   if (!(await bcrypt.compare(parsed.data.currentPassword, user.passwordHash))) return NextResponse.json({ error: "Current password is incorrect." }, { status: 400 });
 
   user.passwordHash = await bcrypt.hash(parsed.data.newPassword, 12);
