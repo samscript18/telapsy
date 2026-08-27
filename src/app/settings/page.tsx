@@ -26,6 +26,7 @@ import { AccountShell } from "@/components/account-shell";
 import type { AccountSession, SessionUser } from "@/types";
 
 const defaults = { orderUpdates: true, productNews: false, compactDashboard: false };
+type SettingsTab = "profile" | "security" | "privacy";
 
 export default function SettingsPage() {
   const { data } = useQuery<{ user: SessionUser }>({
@@ -38,6 +39,11 @@ export default function SettingsPage() {
 function SettingsExperience({ user }: { user: SessionUser }) {
   const router = useRouter();
   const client = useQueryClient();
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    if (typeof window === "undefined") return "profile";
+    const requested = new URLSearchParams(window.location.search).get("tab");
+    return requested === "security" || requested === "privacy" ? requested : "profile";
+  });
   const [preferences, setPreferences] = useState(user.preferences ?? defaults);
   const [profileStatus, setProfileStatus] = useState("");
   const [preferenceStatus, setPreferenceStatus] = useState("");
@@ -58,7 +64,14 @@ function SettingsExperience({ user }: { user: SessionUser }) {
       return response.json();
     },
     retry: false,
+    enabled: activeTab === "security",
   });
+
+  function selectTab(tab: SettingsTab) {
+    setActiveTab(tab);
+    const url = tab === "profile" ? "/settings" : `/settings?tab=${tab}`;
+    window.history.replaceState(null, "", url);
+  }
 
   async function update(body: object) {
     const response = await fetch("/api/auth/me", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -190,13 +203,13 @@ function SettingsExperience({ user }: { user: SessionUser }) {
         <p>Keep your identity accurate, notifications intentional, and every active device under your control.</p>
       </header>
 
-      <nav className="settings-section-nav" aria-label="Settings sections">
-        <a href="#profile" className="is-active"><UserRound size={15} />Profile</a>
-        <a href="#notifications"><BellRing size={15} />Notifications</a>
-        <a href="#security"><ShieldCheck size={15} />Password &amp; sessions</a>
-        <a href="#privacy"><Trash2 size={15} />Privacy &amp; data</a>
+      <nav className="settings-section-nav" aria-label="Settings sections" role="tablist">
+        <button type="button" role="tab" id="settings-tab-profile" aria-selected={activeTab === "profile"} aria-controls="settings-panel-profile" className={activeTab === "profile" ? "is-active" : ""} onClick={() => selectTab("profile")}><UserRound size={15} />Profile</button>
+        <button type="button" role="tab" id="settings-tab-security" aria-selected={activeTab === "security"} aria-controls="settings-panel-security" className={activeTab === "security" ? "is-active" : ""} onClick={() => selectTab("security")}><ShieldCheck size={15} />Password &amp; sessions</button>
+        <button type="button" role="tab" id="settings-tab-privacy" aria-selected={activeTab === "privacy"} aria-controls="settings-panel-privacy" className={activeTab === "privacy" ? "is-active" : ""} onClick={() => selectTab("privacy")}><Trash2 size={15} />Privacy &amp; data</button>
       </nav>
 
+      {activeTab === "profile" && <div id="settings-panel-profile" role="tabpanel" aria-labelledby="settings-tab-profile" className="settings-tab-panel">
       <section className="settings-profile-summary" data-reveal aria-labelledby="settings-name">
         {user.profileImage ? <span className="relative size-[72px] overflow-hidden rounded-2xl border border-[var(--line)]"><Image src={user.profileImage} alt={`${user.name} profile`} fill unoptimized className="object-cover" sizes="72px" /></span> : <div className="profile-avatar !size-[72px] !rounded-2xl !text-2xl">{user.name.slice(0, 1).toUpperCase()}</div>}
         <div><span><UserRound size={13} />Account identity</span><h2 id="settings-name">{user.name}</h2><p>{user.email}</p><div><span data-tone="positive"><CheckCircle2 size={13} />Active</span><span><ShieldCheck size={13} />Verified</span></div></div>
@@ -218,7 +231,9 @@ function SettingsExperience({ user }: { user: SessionUser }) {
           <footer className="account-form-footer"><span>Security alerts may remain essential.</span><button type="button" onClick={savePreferences} disabled={savingPreferences}>{savingPreferences ? "Saving preferences…" : "Save notifications"}</button></footer>
         </section>
       </div>
+      </div>}
 
+      {activeTab === "security" && <div id="settings-panel-security" role="tabpanel" aria-labelledby="settings-tab-security" className="settings-tab-panel">
       <section id="security" className="account-panel account-security-panel scroll-mt-24">
         <PanelHeader icon={<KeyRound size={17} />} kicker="Password" title="Change your credentials" description={`${provider}. A successful password change signs out every active device, including this one.`} />
         {user.authProvider === "google" ? (
@@ -242,8 +257,9 @@ function SettingsExperience({ user }: { user: SessionUser }) {
         )}
         <div className="mt-5 flex flex-col items-start justify-between gap-4 border-t border-[var(--line)] pt-5 sm:flex-row sm:items-center"><p className="max-w-xl text-xs leading-5 text-[var(--faint)]">If you do not recognize a device, revoke it immediately. Signing out everywhere invalidates every Telapsy session.</p><button type="button" onClick={signOutEverywhere} disabled={revokingSession === "all"} className={`rounded-full border px-5 py-3 text-xs transition ${confirmSignOutAll ? "border-[#df8585] bg-[#df8585]/10 text-[#f2a6a6]" : "border-[var(--line-strong)] text-[var(--muted)] hover:border-[#df8585]/60 hover:text-[#f2a6a6]"}`}>{revokingSession === "all" ? "Signing out…" : confirmSignOutAll ? "Confirm sign out everywhere" : "Sign out everywhere"}</button></div>
       </section>
+      </div>}
 
-      <section id="privacy" className="account-panel account-security-panel scroll-mt-24" aria-labelledby="delete-account-title">
+      {activeTab === "privacy" && <section id="settings-panel-privacy" role="tabpanel" aria-labelledby="settings-tab-privacy" className="account-panel scroll-mt-24" >
         <PanelHeader icon={<Trash2 size={17} />} kicker="Privacy & data" title="Delete your account" description="Permanently remove your profile, sessions, notifications, and Telapsy order history." id="delete-account-title" tone="danger" />
         <form onSubmit={deleteAccount} className="mt-6 grid gap-4 rounded-2xl border border-[#df8585]/20 bg-[#df8585]/[.035] p-5 sm:p-6">
           <div><strong className="text-sm font-medium text-[var(--ink)]">This action cannot be undone.</strong><p className="mt-2 max-w-2xl text-xs leading-6 text-[var(--faint)]">Type <span className="font-mono text-[#f2a6a6]">DELETE</span>{user.authProvider !== "google" ? " and enter your current password" : ""} to permanently delete the account.</p></div>
@@ -252,6 +268,7 @@ function SettingsExperience({ user }: { user: SessionUser }) {
           <button disabled={deleting} className="w-fit rounded-full border border-[#df8585]/60 px-6 py-3 text-xs text-[#f2a6a6] transition hover:bg-[#df8585]/10 disabled:opacity-50">{deleting ? "Deleting account…" : "Delete account permanently"}</button>
         </form>
       </section>
+      }
     </div>
   );
 }
