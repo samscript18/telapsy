@@ -30,5 +30,17 @@ export interface SessionUser {
   name: string;
   email: string;
   balanceCents: number;
+  authProvider?: "password" | "google" | "both";
+  createdAt?: string;
   preferences?: { orderUpdates: boolean; productNews: boolean; compactDashboard: boolean };
+}
+
+export interface NotificationData {
+  id: string;
+  type: "account" | "order" | "collection" | "security";
+  title: string;
+  message: string;
+  actionUrl?: string;
+  read: boolean;
+  createdAt: string;
 }

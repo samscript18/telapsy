@@ -7,6 +7,7 @@ import { createOrderAccessToken, getSessionUserId, RECENT_ORDER_COOKIE, sessionC
 import { Product } from "@/models/Product";
 import { User } from "@/models/User";
 import { Order } from "@/models/Order";
+import { notifyUser } from "@/lib/notifications";
 
 function makeOrderNumber() { return `TEL-${Date.now().toString().slice(-6)}${Math.floor(Math.random()*90+10)}`; }
 
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
     if (parsed.data.paymentMethod === "balance") { const result=await User.updateOne({_id:sessionUserId,balanceCents:{$gte:pricing.totalCents}},{$inc:{balanceCents:-pricing.totalCents}}); if(!result.modifiedCount)return NextResponse.json({error:"Your Telapsy Balance is not enough for this order."},{status:409}); deducted=true; }
     try {
       const order=await Order.create({orderNumber:makeOrderNumber(),userId:sessionUserId??undefined,guestEmail:sessionUserId?undefined:parsed.data.customer.email,items,...pricing,customer:parsed.data.customer,delivery:parsed.data.delivery,paymentMethod:parsed.data.paymentMethod,paymentStatus:"paid",orderStatus:"processing",idempotencyKey:parsed.data.idempotencyKey||randomUUID()});
+      if (sessionUserId) await notifyUser({ userId: sessionUserId, type: "order", title: `Order ${order.orderNumber} confirmed`, message: `Your order is confirmed and is now being prepared.`, actionUrl: `/orders/${order.orderNumber}`, dedupeKey: `order:${order.orderNumber}:confirmed` });
       const response=NextResponse.json({orderNumber:order.orderNumber,totalCents:order.totalCents},{status:201});response.cookies.set(RECENT_ORDER_COOKIE,await createOrderAccessToken(order.orderNumber),{...sessionCookieOptions,maxAge:86400});return response;
     } catch (error) { if(deducted)await User.updateOne({_id:sessionUserId},{$inc:{balanceCents:pricing.totalCents}});throw error; }
   } catch (error) { return NextResponse.json({error:error instanceof Error?error.message:"We couldn’t place your order. Please try again."},{status:500}); }

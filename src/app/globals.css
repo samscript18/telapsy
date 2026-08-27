@@ -243,6 +243,22 @@ button:disabled {
   mix-blend-mode: screen;
 }
 
+.account-header-action { position: relative; display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border: 1px solid rgba(255,255,255,.1); border-radius: .85rem; background: rgba(255,255,255,.035); color: var(--muted); transition: .25s ease; }
+.account-header-action:hover { color: var(--accent); border-color: rgba(232,185,106,.38); background: rgba(232,185,106,.08); transform: translateY(-1px); }
+.account-header-action > span { position: absolute; right: -.28rem; top: -.3rem; min-width: 1.1rem; height: 1.1rem; display: grid; place-items: center; border: 2px solid #050505; border-radius: 999px; background: var(--accent); padding: 0 .2rem; color: #090704; font: 700 8px/1 monospace; }
+.session-gate { position: fixed; inset: 0; z-index: 100; display: grid; place-content: center; justify-items: center; overflow: hidden; background: radial-gradient(circle at 50% 44%, rgba(232,185,106,.08), transparent 25%), #050505; }
+.session-gate-glow { position: absolute; width: min(56vw, 520px); aspect-ratio: 1; border-radius: 999px; background: rgba(232,185,106,.06); filter: blur(75px); animation: gate-breathe 2.4s ease-in-out infinite; }
+.session-gate-wordmark { position: relative; width: min(78vw, 620px); filter: drop-shadow(0 14px 34px rgba(232,185,106,.15)); }
+.session-gate-text { font: 800 82px/1 Arial, sans-serif; letter-spacing: 13px; }
+.session-gate-outline { fill: transparent; stroke: rgba(255,255,255,.13); stroke-width: 1; }
+.session-wave { animation: gate-wave 2.8s ease-in-out infinite alternate; }
+.session-wave-two { animation-delay: -.9s; animation-duration: 3.4s; }
+.session-gate-status { position: relative; display: flex; align-items: center; gap: .6rem; color: var(--faint); font: 500 9px/1.2 monospace; letter-spacing: .17em; text-transform: uppercase; }
+.session-gate-status span { width: .4rem; height: .4rem; border-radius: 999px; background: var(--accent); box-shadow: 0 0 16px var(--accent); animation: gate-breathe 1.2s ease-in-out infinite; }
+@keyframes gate-wave { from { transform: translate3d(-38px, 3px, 0); } to { transform: translate3d(28px, -8px, 0); } }
+@keyframes gate-breathe { 50% { opacity: .45; transform: scale(.94); } }
+@media (prefers-reduced-motion: reduce) { .session-wave, .session-gate-glow, .session-gate-status span { animation: none; } }
+
 .scroll-progress {
   position: fixed;
   top: 0;
