@@ -15,7 +15,7 @@ export function AuthForm({ mode }: { mode: "signup" | "signin" }) {
     setLoading(true);
     setError("");
     const form = new FormData(event.currentTarget);
-    if (signup && form.get("password") !== form.get("confirmPassword")) {
+    if (signup && form.get("confirmPassword") && form.get("password") !== form.get("confirmPassword")) {
       setError("Passwords do not match.");
       setLoading(false);
       return;
@@ -72,8 +72,8 @@ export function AuthForm({ mode }: { mode: "signup" | "signin" }) {
 
       {signup && (
         <label className="grid gap-1.5 text-xs font-mono text-[var(--faint)]">
-          <span>CONFIRM PASSWORD</span>
-          <input className="field text-xs text-[var(--ink)] font-sans" type="password" name="confirmPassword" autoComplete="new-password" required />
+          <span>CONFIRM PASSWORD <span className="text-[var(--faint)]">(OPTIONAL)</span></span>
+          <input className="field text-xs text-[var(--ink)] font-sans" type="password" name="confirmPassword" autoComplete="new-password" />
         </label>
       )}
 
