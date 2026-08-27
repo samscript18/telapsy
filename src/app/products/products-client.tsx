@@ -15,6 +15,7 @@ export function ProductsClient({ authenticated = false }: { authenticated?: bool
   const [search, setSearch] = useState(params.get("search") ?? "");
   const category = params.get("category") ?? "All";
   const page = Math.max(1, Number(params.get("page") ?? "1") || 1);
+  const routeBase = authenticated ? "/dashboard/products" : "/products";
 
   const { data: session } = useQuery<{ user: SessionUser | null }>({
     queryKey: ["me"],
@@ -32,16 +33,16 @@ export function ProductsClient({ authenticated = false }: { authenticated?: bool
     if (search) next.set("search", search);
     if (category !== "All") next.set("category", category);
     if (page > 1) next.set("page", String(page));
-    const timer = setTimeout(() => router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false }), 250);
+    const timer = setTimeout(() => router.replace(`${routeBase}${next.size ? `?${next}` : ""}`, { scroll: false }), 250);
     return () => clearTimeout(timer);
-  }, [search, category, page, router]);
+  }, [search, category, page, routeBase, router]);
 
   const setCategory = (value: string) => {
     const next = new URLSearchParams(params);
     if (value === "All") next.delete("category");
     else next.set("category", value);
     next.delete("page");
-    router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false });
+    router.replace(`${routeBase}${next.size ? `?${next}` : ""}`, { scroll: false });
   };
 
   return (
@@ -80,7 +81,7 @@ export function ProductsClient({ authenticated = false }: { authenticated?: bool
           <input
             className="field !pl-11 !pr-10 text-xs"
             value={search}
-            onChange={(e) => { setSearch(e.target.value); const next = new URLSearchParams(params); next.delete("page"); router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false }); }}
+            onChange={(e) => { setSearch(e.target.value); const next = new URLSearchParams(params); next.delete("page"); router.replace(`${routeBase}${next.size ? `?${next}` : ""}`, { scroll: false }); }}
             placeholder="Search archive by keyword…"
           />
           {search && (
@@ -138,6 +139,6 @@ export function ProductsClient({ authenticated = false }: { authenticated?: bool
   function updatePage(nextPage: number) {
     const next = new URLSearchParams(params);
     if (nextPage <= 1) next.delete("page"); else next.set("page", String(nextPage));
-    router.replace(`/products${next.size ? `?${next}` : ""}`);
+    router.replace(`${routeBase}${next.size ? `?${next}` : ""}`);
   }
 }

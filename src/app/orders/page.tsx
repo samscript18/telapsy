@@ -43,8 +43,8 @@ export default function OrdersPage() {
         <div className="mt-12 rounded-xl border border-[var(--line)] bg-[var(--surface)] py-20 text-center">
           <PackageOpen className="mx-auto text-[var(--faint)]" size={42} />
           <h2 className="mt-4 text-2xl font-extralight text-[var(--ink)]">No orders placed yet.</h2>
-          <Link href="/products" className="btn btn-primary mt-6 rounded-full px-7 py-3 text-sm">
-            Buy now
+          <Link href="/dashboard/products" className="btn btn-primary mt-6 rounded-full px-7 py-3 text-sm">
+            Shop products
           </Link>
         </div>
       ) : (

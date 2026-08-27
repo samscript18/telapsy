@@ -29,7 +29,7 @@ export function ProductDetails({ product }: { product: ProductData }) {
 
       {/* Product Information */}
       <div data-reveal style={{ "--reveal-delay": "120ms" } as React.CSSProperties} className="flex flex-col justify-center">
-        <Link href={`/products?category=${product.category}`} className="eyebrow">
+        <Link href={`/dashboard/products?category=${product.category}`} className="eyebrow">
           {product.category}
         </Link>
         <h1 className="mt-3 text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] lg:text-6xl">

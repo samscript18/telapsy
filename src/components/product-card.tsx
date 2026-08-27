@@ -8,9 +8,10 @@ import { formatMoney } from "@/lib/pricing";
 import type { ProductData } from "@/types";
 
 export function ProductCard({ product, authenticated = false }: { product: ProductData; authenticated?: boolean }) {
-  const productPath = `/products/${product.slug}`;
-  const loginHref = `/signin?next=${encodeURIComponent(productPath)}`;
-  const signupHref = `/signup?next=${encodeURIComponent(productPath)}`;
+  const productPath = authenticated ? `/dashboard/products/${product.slug}` : `/products/${product.slug}`;
+  const memberProductPath = `/dashboard/products/${product.slug}`;
+  const loginHref = `/signin?next=${encodeURIComponent(memberProductPath)}`;
+  const signupHref = `/signup?next=${encodeURIComponent(memberProductPath)}`;
   const tilt = (event: PointerEvent<HTMLElement>) => {
     if (event.pointerType === "touch") return;
     const bounds = event.currentTarget.getBoundingClientRect();
