@@ -30,4 +30,5 @@ export interface SessionUser {
   name: string;
   email: string;
   balanceCents: number;
+  preferences?: { orderUpdates: boolean; productNews: boolean; compactDashboard: boolean };
 }

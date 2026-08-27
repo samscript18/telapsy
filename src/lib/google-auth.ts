@@ -4,6 +4,7 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 export const GOOGLE_STATE_COOKIE = "telapsy_google_state";
 export const GOOGLE_NONCE_COOKIE = "telapsy_google_nonce";
 export const GOOGLE_VERIFIER_COOKIE = "telapsy_google_verifier";
+export const GOOGLE_RETURN_COOKIE = "telapsy_google_return";
 const GOOGLE_ISSUERS = ["https://accounts.google.com", "accounts.google.com"];
 const jwks = createRemoteJWKSet(new URL("https://www.googleapis.com/oauth2/v3/certs"));
 
