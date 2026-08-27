@@ -220,7 +220,7 @@ export default async function HomePage() {
 						<Link href={authenticated ? "/dashboard/products" : "/signup"} className="group mt-7 inline-flex items-center gap-2 text-xs text-[var(--accent)] transition hover:text-[var(--accent-bright)]">Try Telapsy <ArrowRight size={14} className="transition-transform group-hover:translate-x-1"/></Link>
 					</div>
 					<div data-reveal className="overflow-hidden rounded-[1.7rem] border border-white/10 bg-white/[.02] px-5 sm:px-7">
-						{faqs.map((faq, index) => <details key={faq.question} className="group border-b border-white/10 py-1 last:border-b-0">
+						{faqs.map((faq, index) => <details key={faq.question} name="telapsy-faq" className="group border-b border-white/10 py-1 last:border-b-0">
 							<summary className="flex min-h-20 cursor-pointer list-none items-center justify-between gap-5 py-5 text-left text-base font-light tracking-[-.02em] text-[var(--ink)] marker:content-none sm:text-lg">
 								<span className="flex items-center gap-4"><span className="font-mono text-[9px] tracking-[.14em] text-[var(--accent)]">{String(index + 1).padStart(2, "0")}</span>{faq.question}</span>
 								<span className="grid size-9 shrink-0 place-items-center rounded-full border border-white/10 bg-white/[.035] text-[var(--faint)] transition duration-300 group-open:rotate-180 group-open:border-[var(--accent)]/30 group-open:text-[var(--accent)]"><ChevronDown size={15}/></span>
