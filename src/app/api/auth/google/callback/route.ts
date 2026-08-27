@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
+import { createAuthenticatedSession, SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth";
 import { connectDb } from "@/lib/db";
 import { GOOGLE_INTENT_COOKIE, GOOGLE_NONCE_COOKIE, GOOGLE_RETURN_COOKIE, GOOGLE_STATE_COOKIE, GOOGLE_VERIFIER_COOKIE, googleConfigured, googleRedirectUri, parseGoogleIntent, verifyGoogleIdToken, type GoogleAuthIntent } from "@/lib/google-auth";
 import { welcomeNotification } from "@/lib/notifications";
@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     const requested = request.cookies.get(GOOGLE_RETURN_COOKIE)?.value;
     const destination = requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/dashboard";
     const response = NextResponse.redirect(new URL(destination, process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"));
-    response.cookies.set(SESSION_COOKIE, await createSessionToken(String(user._id)), sessionCookieOptions);
+    response.cookies.set(SESSION_COOKIE, await createAuthenticatedSession(String(user._id), request), sessionCookieOptions);
     oauthCookies.forEach((cookie) => response.cookies.delete(cookie));
     return response;
   } catch {

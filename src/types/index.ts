@@ -31,8 +31,20 @@ export interface SessionUser {
   email: string;
   balanceCents: number;
   authProvider?: "password" | "google" | "both";
+  profileImage?: string;
   createdAt?: string;
   preferences?: { orderUpdates: boolean; productNews: boolean; compactDashboard: boolean };
+}
+
+export interface AccountSession {
+  id: string;
+  device: string;
+  browser: string;
+  operatingSystem: string;
+  createdAt: string;
+  lastActiveAt: string;
+  expiresAt: string;
+  current: boolean;
 }
 
 export interface DeliveryAddress {
