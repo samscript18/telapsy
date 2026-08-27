@@ -8,12 +8,13 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { calculatePricing, formatMoney } from "@/lib/pricing";
 import { OrderSummary } from "@/components/order-summary";
+import { AccountShell } from "@/components/account-shell";
 import { useCart } from "@/store/cart";
 import type { DeliveryAddress, SessionUser } from "@/types";
 
 const emptyDelivery = { address: "", city: "", state: "", country: "Nigeria" };
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
   const { items, promoCode, hydrated } = useCart();
   const pricing = calculatePricing(items, promoCode);
@@ -64,7 +65,7 @@ export default function CheckoutPage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
-      router.push(`/checkout/success/${result.orderNumber}`);
+      router.push(`/dashboard/checkout/success/${result.orderNumber}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Checkout failed.");
       setLoading(false);
@@ -79,7 +80,7 @@ export default function CheckoutPage() {
     return (
       <div className="shell py-24 text-center">
         <h1 className="text-4xl font-extralight tracking-[-0.04em] text-[var(--ink)] md:text-5xl">Your cart is empty.</h1>
-        <Link href="/products" className="btn btn-primary mt-7 rounded-full px-7 py-3">
+        <Link href="/dashboard/products" className="btn btn-primary mt-7 rounded-full px-7 py-3">
           Browse products
         </Link>
       </div>
@@ -218,7 +219,7 @@ export default function CheckoutPage() {
           <button disabled={loading} className="btn btn-primary mt-6 w-full rounded-full py-3.5 text-sm font-medium disabled:opacity-60">
             {loading ? "Processing order…" : `Place order · ${formatMoney(pricing.totalCents)}`}
           </button>
-          <Link href="/cart" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
+          <Link href="/dashboard/cart" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">
             Back to cart
           </Link>
         </aside>
@@ -316,4 +317,8 @@ function ChoiceIndicator({ active }: { active: boolean }) {
       {active && <Check size={12} strokeWidth={3} />}
     </span>
   );
+}
+
+export default function CheckoutPage() {
+  return <AccountShell title="Checkout" eyebrow="Secure order"><CheckoutContent /></AccountShell>;
 }

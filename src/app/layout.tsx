@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { Manrope, IBM_Plex_Mono } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { AppChrome } from "@/components/app-chrome";
 import "./globals.css";
 
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
-const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-plex-mono", weight: ["400", "500"], display: "swap" });
 
 export const metadata: Metadata = {
 	metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en">
-			<body className={`${manrope.variable} ${plexMono.variable} min-h-screen bg-[var(--canvas)] font-sans text-[var(--ink)] antialiased`}>
+			<body className={`${manrope.variable} min-h-screen bg-[var(--canvas)] font-sans text-[var(--ink)] antialiased`}>
 				<Providers>
 					<AppChrome>{children}</AppChrome>
 				</Providers>

@@ -5,7 +5,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { MotionShell } from "@/components/motion-shell";
 
-const appPrefixes = ["/dashboard", "/profile", "/settings", "/orders", "/notifications", "/cart"];
+const appPrefixes = ["/dashboard", "/profile", "/settings", "/orders", "/notifications", "/cart", "/checkout"];
 
 export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

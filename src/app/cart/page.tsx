@@ -158,7 +158,7 @@ function CartContent() {
 
           <OrderSummary pricing={pricing} />
 
-          <Link href="/checkout" className="btn btn-primary mt-6 w-full rounded-full py-3.5 text-sm font-medium">
+          <Link href="/dashboard/checkout" className="btn btn-primary mt-6 w-full rounded-full py-3.5 text-sm font-medium">
             Proceed to checkout <ArrowRight size={16} />
           </Link>
           <Link href="/dashboard/products" className="mt-4 block text-center text-xs font-mono text-[var(--faint)] hover:text-[var(--ink)] underline">

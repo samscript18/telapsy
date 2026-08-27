@@ -6,9 +6,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
 import { OrderView, type OrderViewData } from "@/components/order-view";
+import { AccountShell } from "@/components/account-shell";
 import { useCart } from "@/store/cart";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const { orderNumber } = useParams<{ orderNumber: string }>();
   const clear = useCart((s) => s.clearCart);
   const qc = useQueryClient();
@@ -52,7 +53,7 @@ export default function SuccessPage() {
         <p className="mt-2 font-mono text-sm text-[var(--accent)]">Order #{data.order.orderNumber}</p>
 
         <div className="mt-8 flex justify-center gap-3">
-          <Link href="/products" className="btn btn-primary rounded-full px-7 py-3 text-sm">
+          <Link href="/dashboard/products" className="btn btn-primary rounded-full px-7 py-3 text-sm">
             Continue shopping
           </Link>
           <Link href={`/orders/${data.order.orderNumber}`} className="btn btn-secondary rounded-full px-7 py-3 text-sm">
@@ -64,4 +65,8 @@ export default function SuccessPage() {
       <OrderView order={data.order} />
     </div>
   );
+}
+
+export default function SuccessPage() {
+  return <AccountShell title="Order confirmed" eyebrow="Payment verified"><SuccessContent /></AccountShell>;
 }

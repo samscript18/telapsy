@@ -46,5 +46,13 @@ export async function sendPasswordResetEmail(
     }),
   });
 
+  if (!response.ok) {
+    const responseBody = await response.text();
+    console.error("Brevo password-reset request rejected", {
+      status: response.status,
+      body: responseBody,
+    });
+  }
+
   return { status: response.ok ? ("sent" as const) : ("failed" as const) };
 }

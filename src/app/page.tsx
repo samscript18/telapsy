@@ -204,7 +204,7 @@ export default async function HomePage() {
 
 			<section className="border-y border-[var(--line)] bg-[linear-gradient(120deg,rgba(232,185,106,.07),rgba(255,255,255,.015))] py-20">
 				<div className="shell grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
-					<div data-reveal><p className="eyebrow">Confidence built into every screen</p><h2 className="mt-4 max-w-3xl text-4xl font-extralight tracking-[-.05em] md:text-5xl">The details agree—from cart to confirmation.</h2><p className="mt-5 max-w-2xl text-sm font-light leading-7 text-[var(--muted)]">Prices are confirmed on the server, payment is simulated safely, and every order preserves exactly what you purchased.</p></div>
+					<div data-reveal><p className="eyebrow">Confidence built into every screen</p><h2 className="mt-4 max-w-3xl text-4xl font-extralight tracking-[-.05em] md:text-5xl">The details agree from cart to confirmation.</h2><p className="mt-5 max-w-2xl text-sm font-light leading-7 text-[var(--muted)]">Prices are confirmed on the server, payment is simulated safely, and every order preserves exactly what you purchased.</p></div>
 					<div data-reveal className="grid min-w-[280px] gap-3 sm:grid-cols-3 lg:grid-cols-1">
 						{["Authoritative totals", "Private account activity", "Immutable order history"].map((item) => <div key={item} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/20 px-5 py-4 text-xs text-[var(--muted)]"><CircleCheck size={17} className="text-[var(--accent)]"/>{item}</div>)}
 					</div>

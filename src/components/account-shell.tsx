@@ -10,18 +10,20 @@ import { useCart } from "@/store/cart";
 import type { SessionUser } from "@/types";
 
 const navigation = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
-  { href: "/profile", label: "Profile", icon: UserRound },
-  { href: "/orders", label: "Orders", icon: Package },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/settings", label: "Settings", icon: Settings },
+	{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+	{ href: "/dashboard/products", label: "Products", icon: ShoppingBag },
+	{ href: "/orders", label: "Orders", icon: Package },
+	{ href: "/notifications", label: "Notifications", icon: Bell },
+	{ href: "/profile", label: "Profile", icon: UserRound },
+	{ href: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
 const mobileNavigation = navigation.filter((item) => ["/dashboard", "/dashboard/products", "/orders", "/settings"].includes(item.href));
 let sessionGateShown = false;
 
-function activePath(pathname: string, href: string) { return pathname === href || pathname.startsWith(`${href}/`); }
+function activePath(pathname: string, href: string) {
+	return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function AccountShell({ children, title, eyebrow = "Your account" }: { children: ReactNode; title: string; eyebrow?: string }) {
 	const pathname = usePathname();
