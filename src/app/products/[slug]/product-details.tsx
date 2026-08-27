@@ -10,13 +10,12 @@ import type { ProductData } from "@/types";
 
 export function ProductDetails({ product }: { product: ProductData }) {
   const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
   const addItem = useCart((s) => s.addItem);
+  const isInCart = useCart((s) => s.items.some((item) => item.slug === product.slug));
 
   const add = () => {
+    if (isInCart) return;
     addItem(product, quantity);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1800);
   };
 
   return (
@@ -76,11 +75,13 @@ export function ProductDetails({ product }: { product: ProductData }) {
 
           <button
             onClick={add}
-            className="flex-1 min-w-[200px] flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-8 py-3 text-sm font-semibold text-[var(--canvas)] transition-all hover:bg-[#f5d388] active:scale-95 shadow-[0_0_20px_rgba(229,184,105,0.25)]"
+            disabled={isInCart}
+            aria-disabled={isInCart}
+            className="flex-1 min-w-[200px] flex items-center justify-center gap-2 rounded-full bg-[var(--accent)] px-8 py-3 text-sm font-semibold text-[var(--canvas)] transition-all hover:bg-[#f5d388] active:scale-95 shadow-[0_0_20px_rgba(229,184,105,0.25)] disabled:cursor-not-allowed disabled:border disabled:border-[var(--line)] disabled:bg-[var(--surface)] disabled:text-[var(--muted)] disabled:shadow-none disabled:hover:bg-[var(--surface)]"
           >
-            {added ? (
+            {isInCart ? (
               <>
-                <Check size={17} /> Added to cart
+                <Check size={17} /> Already in cart
               </>
             ) : (
               `Add ${quantity} to cart`
