@@ -1,35 +1,46 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ProductCard } from "@/components/product-card";
-import { CATEGORIES, type ProductData } from "@/types";
+import { CATEGORIES, type ProductData, type SessionUser } from "@/types";
 
-export function ProductsClient() {
+const PAGE_SIZE = 12;
+
+export function ProductsClient({ authenticated = false }: { authenticated?: boolean }) {
   const params = useSearchParams();
   const router = useRouter();
   const [search, setSearch] = useState(params.get("search") ?? "");
   const category = params.get("category") ?? "All";
+  const page = Math.max(1, Number(params.get("page") ?? "1") || 1);
+
+  const { data: session } = useQuery<{ user: SessionUser | null }>({
+    queryKey: ["me"],
+    queryFn: async () => { const response = await fetch("/api/auth/me"); return response.ok ? response.json() : { user: null }; },
+    retry: false,
+  });
 
   const { data, isLoading } = useQuery<{ products: ProductData[]; count: number }>({
-    queryKey: ["products", search, category],
-    queryFn: () => fetch(`/api/products?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`).then((r) => r.json()),
+    queryKey: ["products", search, category, page],
+    queryFn: () => fetch(`/api/products?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}&page=${page}&limit=${PAGE_SIZE}`).then((r) => r.json()),
   });
 
   useEffect(() => {
     const next = new URLSearchParams();
     if (search) next.set("search", search);
     if (category !== "All") next.set("category", category);
+    if (page > 1) next.set("page", String(page));
     const timer = setTimeout(() => router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false }), 250);
     return () => clearTimeout(timer);
-  }, [search, category, router]);
+  }, [search, category, page, router]);
 
   const setCategory = (value: string) => {
     const next = new URLSearchParams(params);
     if (value === "All") next.delete("category");
     else next.set("category", value);
+    next.delete("page");
     router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false });
   };
 
@@ -69,7 +80,7 @@ export function ProductsClient() {
           <input
             className="field !pl-11 !pr-10 text-xs"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); const next = new URLSearchParams(params); next.delete("page"); router.replace(`/products${next.size ? `?${next}` : ""}`, { scroll: false }); }}
             placeholder="Search archive by keyword…"
           />
           {search && (
@@ -106,10 +117,27 @@ export function ProductsClient() {
       ) : (
         <div className="product-grid mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
           {data?.products.map((product) => (
-            <ProductCard key={product.slug} product={product} />
+            <ProductCard key={product.slug} product={product} authenticated={authenticated || Boolean(session?.user)} />
           ))}
         </div>
       )}
+
+      {!isLoading && (data?.count ?? 0) > PAGE_SIZE && (
+        <nav className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[var(--line)] pt-7 sm:flex-row" aria-label="Product pagination">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--faint)]">Page {page} of {Math.ceil((data?.count ?? 0) / PAGE_SIZE)}</p>
+          <div className="flex items-center gap-2">
+            <button disabled={page === 1} onClick={() => updatePage(page - 1)} className="pagination-button"><ChevronLeft size={15}/>Previous</button>
+            {Array.from({ length: Math.ceil((data?.count ?? 0) / PAGE_SIZE) }, (_, index) => index + 1).map((number) => <button key={number} onClick={() => updatePage(number)} aria-current={number === page ? "page" : undefined} className={`pagination-number ${number === page ? "is-active" : ""}`}>{number}</button>)}
+            <button disabled={page >= Math.ceil((data?.count ?? 0) / PAGE_SIZE)} onClick={() => updatePage(page + 1)} className="pagination-button">Next<ChevronRight size={15}/></button>
+          </div>
+        </nav>
+      )}
     </div>
   );
+
+  function updatePage(nextPage: number) {
+    const next = new URLSearchParams(params);
+    if (nextPage <= 1) next.delete("page"); else next.set("page", String(nextPage));
+    router.replace(`/products${next.size ? `?${next}` : ""}`);
+  }
 }

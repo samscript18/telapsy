@@ -80,10 +80,10 @@ export function ProductDetails({ product }: { product: ProductData }) {
           >
             {added ? (
               <>
-                <Check size={17} /> Added to bag
+                <Check size={17} /> Added to cart
               </>
             ) : (
-              `Add ${quantity} to bag`
+              `Add ${quantity} to cart`
             )}
           </button>
         </div>
