@@ -3,6 +3,7 @@ import {
   googleAuthorizationUrl,
   googleConfigured,
   oauthRandom,
+  parseGoogleIntent,
   pkceChallenge,
 } from "./google-auth";
 
@@ -13,6 +14,11 @@ afterEach(() => {
 });
 
 describe("Google OAuth helpers", () => {
+  it("keeps signup and login intents separate", () => {
+    expect(parseGoogleIntent("signup")).toBe("signup");
+    expect(parseGoogleIntent("signin")).toBe("signin");
+    expect(parseGoogleIntent("unexpected")).toBe("signin");
+  });
   it("creates high-entropy URL-safe values", () => {
     const first = oauthRandom();
     const second = oauthRandom();
